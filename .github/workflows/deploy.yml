@@ -19,6 +19,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: pnpm/action-setup@v4
 
@@ -32,7 +34,7 @@ jobs:
 
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: build
+          path: docs/.vitepress/dist
 
   deploy:
     environment:
