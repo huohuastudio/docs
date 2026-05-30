@@ -32,7 +32,7 @@ Novaix 通过 `config.yaml` 文件进行配置，所有配置项均可通过 `NO
 | `incus.insecure_skip_verify` | `false` | 是否跳过节点 TLS 证书验证 |
 | `admin.initial_password` | - | 初始管理员密码（空时自动生成，仅首次启动生效） |
 | `license.key` | - | 许可证密钥 |
-| `license.service_api` | - | 许可证验证服务地址 |
+| `license.service_api` | `https://huohuastudio.com` | 许可证验证服务地址 |
 | `demo.enabled` | `false` | 演示模式（定期重置数据） |
 | `demo.reset_interval` | `1h` | 演示模式数据重置间隔 |
 
