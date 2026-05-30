@@ -1,27 +1,41 @@
-# Spark Studio Docs
+# Website
 
-Spark Studio 产品文档中心，基于 [VitePress](https://vitepress.dev) 构建。
+This website is built using [Docusaurus](https://docusaurus.io/), a modern static website generator.
 
-在线访问：[docs.huohuastudio.com](https://docs.huohuastudio.com)
-
-## 包含产品
-
-- **Novaix** — 一站式 IDC 管理系统
-- **Lsky Pro+** — 云端相册系统
-
-## 本地开发
+## Installation
 
 ```bash
-pnpm install
-pnpm dev
+yarn
 ```
 
-## 构建
+## Local Development
 
 ```bash
-pnpm build
+yarn start
 ```
 
-## 部署
+This command starts a local development server and opens up a browser window. Most changes are reflected live without having to restart the server.
 
-推送到 `main` 分支后，GitHub Actions 会自动构建并部署到 GitHub Pages。
+## Build
+
+```bash
+yarn build
+```
+
+This command generates static content into the `build` directory and can be served using any static contents hosting service.
+
+## Deployment
+
+Using SSH:
+
+```bash
+USE_SSH=true yarn deploy
+```
+
+Not using SSH:
+
+```bash
+GIT_USER=<Your GitHub username> yarn deploy
+```
+
+If you are using GitHub pages for hosting, this command is a convenient way to build the website and push to the `gh-pages` branch.
