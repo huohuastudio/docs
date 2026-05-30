@@ -1,0 +1,13 @@
+{
+  "name": "huohuastudio-docs",
+  "private": true,
+  "license": "UNLICENSED",
+  "scripts": {
+    "dev": "vitepress dev src",
+    "build": "vitepress build src",
+    "preview": "vitepress preview src"
+  },
+  "devDependencies": {
+    "vitepress": "^1.6.3"
+  }
+}
