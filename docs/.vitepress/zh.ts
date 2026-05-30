@@ -23,6 +23,11 @@ export const zh = defineConfig({
       next: '下一页',
     },
 
+    editLink: {
+      pattern: 'https://github.com/huohuastudio/docs/edit/main/docs/:path',
+      text: '在 GitHub 上编辑此页',
+    },
+
     outline: {
       level: 'deep',
       label: '页面导航',
