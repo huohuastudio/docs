@@ -1,7 +1,13 @@
 import { defineConfig } from 'vitepress'
+import { withMermaid } from 'vitepress-plugin-mermaid'
 import { search as zhSearch } from './zh'
 
-export const shared = defineConfig({
+export const shared = withMermaid({
+  mermaid: {},
+  mermaidPlugin: {
+    class: 'mermaid',
+  },
+
   rewrites: {
     'zh/:rest*': ':rest*'
   },
@@ -12,6 +18,8 @@ export const shared = defineConfig({
   ignoreDeadLinks: true,
 
   themeConfig: {
+    logo: { src: '/logo.png', width: 24, height: 24 },
+
     search: {
       provider: 'local',
       options: {
