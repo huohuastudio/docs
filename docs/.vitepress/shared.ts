@@ -23,7 +23,7 @@ export const shared = withMermaid(
     },
 
     head: [
-      ['link', { rel: 'icon', href: '/favicon.ico' }],
+      ['link', { rel: 'icon', type: 'image/svg+xml', href: '/logo.svg' }],
     ],
 
     themeConfig: {
