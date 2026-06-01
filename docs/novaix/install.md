@@ -2,7 +2,7 @@
 
 Novaix 编译为单个二进制文件，部署非常简单。您只需要下载二进制文件、编辑配置文件，然后启动即可。
 
-## 下载
+## 下载 {#download}
 
 从 [GitHub Releases](https://github.com/huohuastudio/novaix-releases/releases) 下载最新版本的二进制文件：
 
@@ -15,7 +15,7 @@ chmod +x novaix-linux-amd64
 mv novaix-linux-amd64 /usr/local/bin/novaix
 ```
 
-## 准备目录与配置
+## 准备目录与配置 {#prepare}
 
 ```bash
 # 创建工作目录
@@ -73,11 +73,11 @@ admin:
   initial_password: "your-password"  # 仅首次启动时生效
 ```
 
-## 使用 Supervisor 守护进程
+## 使用 Supervisor 守护进程 {#supervisor}
 
 在生产环境中，您需要使用进程管理工具来保证 Novaix 持续运行。我们推荐使用 Supervisor 或 systemd。
 
-### 安装 Supervisor
+### 安装 Supervisor {#install-supervisor}
 
 ::: code-group
 
@@ -93,7 +93,7 @@ systemctl start supervisord
 
 :::
 
-### 配置 Supervisor
+### 配置 Supervisor {#configure-supervisor}
 
 创建配置文件 `/etc/supervisor/conf.d/novaix.conf`：
 
@@ -133,7 +133,7 @@ supervisorctl stop novaix        # 停止
 supervisorctl tail -f novaix     # 实时查看日志
 ```
 
-## 使用 systemd 守护进程（可选）
+## 使用 systemd 守护进程（可选） {#systemd}
 
 如果您更偏好 systemd，创建 `/etc/systemd/system/novaix.service`：
 
@@ -166,7 +166,7 @@ systemctl restart novaix         # 重启
 journalctl -u novaix -f          # 实时查看日志
 ```
 
-## 配置 Nginx 反向代理
+## 配置 Nginx 反向代理 {#nginx}
 
 Novaix 本身仅监听 HTTP，生产环境必须使用反向代理处理 HTTPS。
 
@@ -213,7 +213,7 @@ certbot --nginx -d panel.example.com
 WebSocket 支持是必须的，Novaix 的实例终端、控制台、任务日志等功能都依赖 WebSocket 连接。请确保您的 Nginx 配置中包含了 `Upgrade` 和 `Connection` 头的转发。
 :::
 
-## 配置 Caddy 反向代理（可选）
+## 配置 Caddy 反向代理（可选） {#caddy}
 
 如果您更偏好 Caddy，它可以自动处理 HTTPS 证书的申请和续期，配置更为简单。
 
@@ -231,7 +231,7 @@ systemctl restart caddy
 
 Caddy 会自动申请和续期 SSL 证书，无需额外配置。Caddy 会自动处理 WebSocket 转发，无需额外配置。
 
-## 使用 MySQL 数据库（可选）
+## 使用 MySQL 数据库（可选） {#mysql}
 
 如果您的业务规模较大或有高并发需求，可以将数据库从默认的 SQLite 切换到 MySQL。
 
@@ -280,7 +280,7 @@ database:
 - 目前不支持从 SQLite 在线迁移到 MySQL，您需要在首次部署时就决定使用哪种数据库
 :::
 
-## 验证安装
+## 验证安装 {#verify}
 
 安装完成后，使用浏览器访问您配置的域名（如 `https://panel.example.com`），您应该能看到登录页面。
 

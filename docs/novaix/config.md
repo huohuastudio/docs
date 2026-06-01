@@ -4,7 +4,7 @@ Novaix 通过 `config.yaml` 文件进行配置，所有配置项均可通过 `NO
 
 环境变量的优先级高于配置文件。
 
-## 完整配置项
+## 完整配置项 {#full-config}
 
 | 配置项 | 默认值 | 说明 |
 |--------|--------|------|
@@ -36,7 +36,7 @@ Novaix 通过 `config.yaml` 文件进行配置，所有配置项均可通过 `NO
 | `demo.enabled` | `false` | 演示模式（定期重置数据） |
 | `demo.reset_interval` | `1h` | 演示模式数据重置间隔 |
 
-## MySQL DSN 格式
+## MySQL DSN 格式 {#mysql-dsn}
 
 如果您使用 MySQL 数据库，`database.dsn` 的格式为：
 
@@ -55,7 +55,7 @@ database:
   conn_max_lifetime: 3600
 ```
 
-## 生产环境清单
+## 生产环境清单 {#production-checklist}
 
 > [!IMPORTANT]
 > 部署到生产环境前，请确保完成以下配置：

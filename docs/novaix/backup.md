@@ -2,7 +2,7 @@
 
 定期备份是保障数据安全的基本操作。Novaix 的数据备份主要包括数据库文件和配置文件。
 
-## SQLite 备份（默认）
+## SQLite 备份（默认） {#sqlite-backup}
 
 SQLite 数据库是一个单独的文件，直接复制即可完成备份：
 
@@ -18,7 +18,7 @@ cp /opt/novaix/novaix.db /backup/novaix-$(date +%Y%m%d).db
 0 3 * * * cp /opt/novaix/novaix.db /backup/novaix-$(date +\%Y\%m\%d).db
 ```
 
-## MySQL 备份
+## MySQL 备份 {#mysql-backup}
 
 ```bash
 # 手动备份
@@ -32,9 +32,9 @@ mysqldump -u root -p novaix > /backup/novaix-$(date +%Y%m%d).sql
 0 3 * * * mysqldump -u novaix_user -pYOUR_PASSWORD novaix > /backup/novaix-$(date +\%Y\%m\%d).sql
 ```
 
-## 恢复
+## 恢复 {#restore}
 
-### 恢复 SQLite
+### 恢复 SQLite {#restore-sqlite}
 
 ```bash
 # 停止服务
@@ -47,7 +47,7 @@ cp /backup/novaix-20260530.db /opt/novaix/novaix.db
 supervisorctl start novaix
 ```
 
-### 恢复 MySQL
+### 恢复 MySQL {#restore-mysql}
 
 ```bash
 # 停止服务
@@ -60,7 +60,7 @@ mysql -u root -p novaix < /backup/novaix-20260530.sql
 supervisorctl start novaix
 ```
 
-## 配置文件备份
+## 配置文件备份 {#config-backup}
 
 除了数据库，您还应该备份以下文件：
 
@@ -73,7 +73,7 @@ supervisorctl start novaix
 - 定期检查备份文件是否完整可用
 :::
 
-## 哪些数据不在备份范围内
+## 哪些数据不在备份范围内 {#excluded-data}
 
 ::: warning
 Novaix 的备份只覆盖了管理面板的数据（数据库、配置、镜像文件）。以下数据**不在备份范围内**，需要您单独处理：

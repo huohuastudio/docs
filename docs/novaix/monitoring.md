@@ -2,7 +2,7 @@
 
 Novaix 内置了资源监控和告警功能，帮助您实时掌握节点和实例的运行状态。
 
-## 监控数据采集
+## 监控数据采集 {#data-collection}
 
 Novaix 会定期采集节点和实例的资源使用数据，包括：
 
@@ -13,7 +13,7 @@ Novaix 会定期采集节点和实例的资源使用数据，包括：
 
 节点层面的监控需要节点服务器安装 [Node Exporter](https://github.com/prometheus/node_exporter)，Novaix 通过 Node Exporter 的接口采集数据。实例层面的监控数据直接从运行环境的 API 获取，无需额外安装。
 
-### 采集配置
+### 采集配置 {#collector-config}
 
 在 `config.yaml` 中配置采集参数：
 
@@ -24,7 +24,7 @@ collector:
   timeout: 10     # 单次采集超时（秒），默认 10
 ```
 
-## 仪表盘
+## 仪表盘 {#dashboard}
 
 管理面板的仪表盘页面提供了全局概览，包括：
 
@@ -34,7 +34,7 @@ collector:
 - 订单和收入统计
 - 资源使用趋势图表
 
-## 告警
+## 告警 {#alerts}
 
 Novaix 支持阈值告警，当监控指标超过设定的阈值时会触发告警。目前支持以下告警类型：
 
