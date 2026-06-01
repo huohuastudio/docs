@@ -109,6 +109,7 @@ function sidebarNovaix(): DefaultTheme.SidebarItem[] {
         { text: '节点管理', link: 'node' },
         { text: '镜像管理', link: 'image' },
         { text: 'IP 池管理', link: 'ip-pool' },
+        { text: '共享 IP', link: 'shared-ip' },
         { text: '套餐管理', link: 'plan' },
       ],
     },
@@ -117,6 +118,7 @@ function sidebarNovaix(): DefaultTheme.SidebarItem[] {
       collapsed: false,
       items: [
         { text: '实例管理', link: 'instance' },
+        { text: '端口转发', link: 'port-forward' },
         { text: '用户管理', link: 'user' },
         { text: '订单与计费', link: 'order' },
         { text: '支付配置', link: 'payment' },
