@@ -111,6 +111,7 @@ function sidebarNovaix(): DefaultTheme.SidebarItem[] {
         { text: 'IP 池管理', link: 'ip-pool' },
         { text: '共享 IP', link: 'shared-ip' },
         { text: '套餐管理', link: 'plan' },
+        { text: '对象存储', link: 'storage' },
       ],
     },
     {
@@ -119,7 +120,9 @@ function sidebarNovaix(): DefaultTheme.SidebarItem[] {
       items: [
         { text: '实例管理', link: 'instance' },
         { text: '端口转发', link: 'port-forward' },
+        { text: '流量包', link: 'traffic-package' },
         { text: '用户管理', link: 'user' },
+        { text: '实名认证', link: 'kyc' },
         { text: '订单与计费', link: 'order' },
         { text: '支付配置', link: 'payment' },
         { text: '优惠券', link: 'coupon' },
@@ -130,10 +133,13 @@ function sidebarNovaix(): DefaultTheme.SidebarItem[] {
       text: '系统功能',
       collapsed: false,
       items: [
+        { text: '任务管理', link: 'task' },
         { text: '工单系统', link: 'ticket' },
         { text: '公告管理', link: 'announcement' },
         { text: '监控与告警', link: 'monitoring' },
         { text: '邮件配置', link: 'mail' },
+        { text: '短信服务', link: 'sms' },
+        { text: '多渠道通知', link: 'notify' },
         { text: '系统设置', link: 'setting' },
         { text: '常见问题', link: 'faq' },
       ],

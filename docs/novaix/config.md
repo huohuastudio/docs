@@ -29,7 +29,7 @@ Novaix 通过 `config.yaml` 文件进行配置，所有配置项均可通过 `NO
 | `collector.retention` | `720` | 监控数据保留时间（小时，默认 30 天） |
 | `collector.timeout` | `10` | 单次采集超时（秒） |
 | `storage.image_dir` | `data/images` | 镜像和 ISO 文件存储目录 |
-| `incus.insecure_skip_verify` | `false` | 是否跳过节点 TLS 证书验证 |
+| `node.insecure_skip_verify` | `false` | 是否跳过节点 TLS 证书验证 |
 | `admin.initial_password` | - | 初始管理员密码（空时自动生成，仅首次启动生效） |
 | `license.key` | - | 许可证密钥 |
 | `license.service_api` | `https://huohuastudio.com` | 许可证验证服务地址 |
