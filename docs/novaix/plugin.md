@@ -238,7 +238,7 @@ var apiUrl = config.api_url;
 
 ### 支付插件 (payment) {#payment}
 
-#### createPayment(req) — 必须导出 {#createPayment}
+#### createPayment(req) <Badge type="danger" text="必须导出" /> {#createPayment}
 
 **入参 `req`：**
 
@@ -260,7 +260,7 @@ var apiUrl = config.api_url;
 | `tradeNo` | string | 渠道方交易号（可为空） |
 | `qrCode` | boolean | `true` 表示 `payURL` 是二维码内容而非跳转链接 |
 
-#### handleCallback(req) — 必须导出 {#handleCallback}
+#### handleCallback(req) <Badge type="danger" text="必须导出" /> {#handleCallback}
 
 **入参 `req`：**
 
@@ -289,7 +289,7 @@ var apiUrl = config.api_url;
 系统会自动进行金额校验和幂等处理，插件只需返回正确的回调结果。
 :::
 
-#### callbackOKResponse() — 可选导出 {#callbackOKResponse}
+#### callbackOKResponse() <Badge type="tip" text="可选导出" /> {#callbackOKResponse}
 
 自定义回调成功时返回给支付平台的响应（默认返回 200 `text/plain` `"success"`）。支持两种返回格式：
 
@@ -303,13 +303,13 @@ function callbackOKResponse() {
 }
 ```
 
-#### callbackFailResponse() — 可选导出 {#callbackFailResponse}
+#### callbackFailResponse() <Badge type="tip" text="可选导出" /> {#callbackFailResponse}
 
 自定义回调失败时返回给支付平台的响应（默认返回 400 `text/plain` `"fail"`）。格式同上。
 
 ### 身份认证插件 (kyc) {#kyc}
 
-#### verify(req) — 必须导出 {#verify}
+#### verify(req) <Badge type="danger" text="必须导出" /> {#verify}
 
 **入参 `req`：**
 
@@ -327,7 +327,7 @@ function callbackOKResponse() {
 
 ### 短信插件 (sms) {#sms}
 
-#### send(phone, params) — 必须导出 {#sms-send}
+#### send(phone, params) <Badge type="danger" text="必须导出" /> {#sms-send}
 
 | 参数 | 类型 | 说明 |
 |------|------|------|
@@ -338,7 +338,7 @@ function callbackOKResponse() {
 
 ### 邮件插件 (mail) {#mail}
 
-#### send(to, subject, htmlBody) — 必须导出 {#mail-send}
+#### send(to, subject, htmlBody) <Badge type="danger" text="必须导出" /> {#mail-send}
 
 | 参数 | 类型 | 说明 |
 |------|------|------|
@@ -350,7 +350,7 @@ function callbackOKResponse() {
 
 ### 通知插件 (notify) {#notify}
 
-#### send(title, body) — 必须导出 {#notify-send}
+#### send(title, body) <Badge type="danger" text="必须导出" /> {#notify-send}
 
 | 参数 | 类型 | 说明 |
 |------|------|------|
