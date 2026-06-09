@@ -34,6 +34,26 @@ collector:
 - 订单和收入统计
 - 资源使用趋势图表
 
+## 告警流程 {#alert-flow}
+
+下图展示了从数据采集到触发告警通知的完整流程：
+
+```mermaid
+flowchart LR
+    collect["定时采集<br/>每 60 秒"] --> check{"指标超过<br/>阈值？"}
+    check -->|否| wait["等待下次采集"]
+    check -->|是| cooldown{"在冷却期内？"}
+    cooldown -->|是| skip["跳过通知<br/>避免告警轰炸"]
+    cooldown -->|否| notify["触发告警"]
+    notify --> email["邮件通知"]
+    notify --> push["推送通知<br/>Telegram · 钉钉<br/>企业微信 · Webhook"]
+    notify --> log["记录告警日志"]
+    notify --> cd["进入冷却期<br/>默认 60 分钟"]
+
+    style notify fill:#fef2f2,stroke:#ef4444
+    style skip fill:#fff4e6,stroke:#f59e0b
+```
+
 ## 告警 {#alerts}
 
 Novaix 支持阈值告警，当监控指标超过设定的阈值时会触发告警。目前支持以下告警类型：

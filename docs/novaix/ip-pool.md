@@ -4,6 +4,21 @@ IP 池用于管理节点的可分配 IP 地址。每个节点可以创建多个 
 
 在创建套餐之前，您必须先为对应节点创建 IP 池并添加足够的 IP 地址，否则用户购买套餐时会因为无法分配 IP 而失败。
 
+## IP 生命周期 {#ip-lifecycle}
+
+```mermaid
+flowchart LR
+    create["创建 IP 池<br/>定义 IP 段"] --> free["空闲"]
+    free -->|创建实例| alloc["已分配<br/>绑定到实例"]
+    alloc -->|删除实例| free
+    free -->|管理员标记| reserved["已保留<br/>不参与分配"]
+    reserved -->|取消保留| free
+
+    style free fill:#ecfdf5,stroke:#10b981
+    style alloc fill:#f0f4ff,stroke:#4a6cf7
+    style reserved fill:#fff4e6,stroke:#f59e0b
+```
+
 ## 创建 IP 池 {#create}
 
 在管理面板的「IP 池管理」页面，点击「创建 IP 池」，填写以下信息：

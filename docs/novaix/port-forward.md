@@ -8,6 +8,21 @@
 - 临时调试需要外部访问的端口
 - 补充 NAT VPS 固定端口之外的额外端口需求
 
+下图展示了端口转发的网络拓扑：
+
+```mermaid
+graph LR
+    user["外部用户"] -->|"访问 节点IP:8080"| host["节点宿主机<br/>203.0.113.1"]
+    host -->|"转发 → :80"| vm["实例 A<br/>10.0.0.2"]
+
+    user2["外部用户"] -->|"访问 节点IP:3307"| host
+    host -->|"转发 → :3306"| vm2["实例 B<br/>10.0.0.3"]
+
+    style host fill:#f0f4ff,stroke:#4a6cf7
+    style vm fill:#ecfdf5,stroke:#10b981
+    style vm2 fill:#ecfdf5,stroke:#10b981
+```
+
 ## 创建端口转发规则 {#create-rule}
 
 管理员和用户都可以在实例详情页的「端口转发」标签页中管理规则。

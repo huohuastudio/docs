@@ -15,6 +15,25 @@ NAT VPS 的网络架构如下：
 - 分配的端口范围
 - SSH 登录命令（如 `ssh -p 10000 root@203.0.113.1`）
 
+下图展示了 NAT 模式的网络拓扑：
+
+```mermaid
+graph TB
+    internet["公网"] --> sharedIP["共享 IP<br/>203.0.113.1"]
+
+    subgraph node["节点服务器"]
+        sharedIP --> portMap["端口映射规则"]
+        portMap -->|":10000-10019"| vm1["实例 A<br/>10.0.0.2<br/>SSH → :10000"]
+        portMap -->|":10020-10039"| vm2["实例 B<br/>10.0.0.3<br/>SSH → :10020"]
+        portMap -->|":10040-10059"| vm3["实例 C<br/>10.0.0.4<br/>SSH → :10040"]
+    end
+
+    style sharedIP fill:#f0f4ff,stroke:#4a6cf7
+    style vm1 fill:#ecfdf5,stroke:#10b981
+    style vm2 fill:#ecfdf5,stroke:#10b981
+    style vm3 fill:#ecfdf5,stroke:#10b981
+```
+
 ## 创建共享 IP {#create}
 
 在管理面板的「共享 IP」页面，点击「创建共享 IP」，填写以下信息：
