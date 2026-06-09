@@ -137,6 +137,7 @@ function sidebarNovaix(): DefaultTheme.SidebarItem[] {
         { text: '工单系统', link: 'ticket' },
         { text: '公告管理', link: 'announcement' },
         { text: '监控与告警', link: 'monitoring' },
+        { text: '社会化登录', link: 'oauth' },
         { text: '邮件配置', link: 'mail' },
         { text: '短信服务', link: 'sms' },
         { text: '多渠道通知', link: 'notify' },
