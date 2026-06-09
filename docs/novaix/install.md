@@ -2,23 +2,6 @@
 
 Novaix 编译为单个二进制文件，部署非常简单。您只需要下载二进制文件、编辑配置文件，然后启动即可。
 
-## 部署流程概览 {#overview}
-
-```mermaid
-flowchart LR
-    download["下载二进制"] --> config["编辑 config.yaml<br/>域名 · 密钥 · 模式"]
-    config --> db{"选择数据库"}
-    db -->|默认| sqlite["SQLite<br/>零配置"]
-    db -->|大规模| mysql["MySQL<br/>需创建库和用户"]
-    sqlite --> daemon["配置进程守护<br/>Supervisor / systemd"]
-    mysql --> daemon
-    daemon --> proxy["配置反向代理<br/>Nginx / Caddy + HTTPS"]
-    proxy --> verify["访问面板<br/>初始化配置"]
-
-    style sqlite fill:#ecfdf5,stroke:#10b981
-    style mysql fill:#f0f4ff,stroke:#4a6cf7
-```
-
 ## 下载 {#download}
 
 从 [GitHub Releases](https://github.com/huohuastudio/novaix-releases/releases) 下载最新版本的二进制文件：
