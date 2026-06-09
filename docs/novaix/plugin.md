@@ -170,11 +170,17 @@ Novaix 自带以下官方插件，会随版本升级自动更新：
 | `required` | boolean | 是否必填，保存时校验 |
 | `sensitive` | boolean | 是否敏感，敏感字段会加密存储（`password` 类型默认敏感） |
 | `default` | string | 默认值 |
-| `options` | array | `select` 类型的选项列表 |
+| `options` | array | `select`/`multiselect`/`radio` 类型的选项列表 |
+| `options_from` | object | 动态选项，依赖另一个字段的值切换选项列表，见[动态选项](#options-from) |
 | `help` | string | 字段下方的帮助说明文字 |
 | `placeholder` | string | 输入占位提示文字 |
 | `span` | number | 表单列宽：`1` 占半行，`2` 或不设置占整行 |
-| `when` | object | 条件显示，格式为 `{"key": "字段key", "value": "匹配值"}`。当指定字段的值等于匹配值时才显示该字段，隐藏的字段不参与验证和保存 |
+| `group` | string | 字段分组标题，相同 `group` 值的字段归为一组显示 |
+| `group_collapsed` | boolean | 该分组默认折叠（仅需在分组首个字段上标记） |
+| `when` | object | 条件显示，见[条件显示](#when) |
+| `readonly` | boolean | 只读字段，不可编辑，保存时跳过 |
+| `copyable` | boolean | 显示复制按钮，方便复制字段值 |
+| `computed` | string | 值模板，前端自动解析变量。支持 `{{baseURL}}`（站点 URL）和 `{{pluginID}}`（插件 ID） |
 
 ### 字段类型详解 {#field-types}
 
@@ -183,9 +189,15 @@ Novaix 自带以下官方插件，会随版本升级自动更新：
 | `text` | 单行文本输入框 | 通用文本输入，如 API 地址、应用 ID | 原始字符串 |
 | `password` | 密码输入框（圆点遮罩） | 密钥、Secret 等敏感值，自动加密存储 | 加密字符串 |
 | `textarea` | 多行文本域（4 行） | 证书内容、私钥等长文本。设置 `sensitive: true` 时显示遮罩并加密存储 | 原始字符串（sensitive 时加密） |
-| `select` | 下拉单选框 | 需配合 `options` 属性，格式为 `[{"value": "a", "label": "选项A"}]` | 选中项的 value |
+| `select` | 下拉单选框 | 需配合 `options` 或 `options_from` | 选中项的 value |
+| `multiselect` | 复选框组 | 多选，需配合 `options` 或 `options_from` | JSON 数组字符串，如 `["a","b"]` |
+| `radio` | 单选按钮组 | 选项较少（2-4 个）时比 `select` 更直观 | 选中项的 value |
 | `number` | 数字输入框 | 仅接受数字输入 | 数字字符串 |
 | `bool` | 开关（Switch） | 适合启用/禁用类设置 | `"true"` 或 `"false"` |
+| `url` | URL 输入框 | 自动校验 URL 格式 | 原始字符串 |
+| `code` | 等宽字体多行编辑区（8 行） | 代码片段、模板等 | 原始字符串 |
+| `keyvalue` | 可增删的键值对列表 | 自定义 HTTP header、额外参数等 | JSON 对象字符串，如 `{"key":"value"}` |
+| `divider` | 分隔线 + 说明文字 | 纯视觉元素，不产生配置值。用 `label` 和 `help` 显示标题和说明 | 无 |
 
 **示例：使用各种字段类型**
 
@@ -206,26 +218,110 @@ Novaix 自带以下官方插件，会随版本升级自动更新：
 }
 ```
 
-**示例：条件显示（`when`）**
+### 条件显示（`when`） {#when}
 
-下例中"客户端 IP" 字段仅在接口模式选择"API 出码"时才显示：
+当某个字段只在特定条件下才需要显示时，使用 `when` 属性。隐藏的字段不参与验证和保存。
+
+**单条件模式：**
+
+```json
+{ "key": "client_ip", "label": "客户端 IP", "type": "text", "when": { "key": "mode", "value": "mapi" } }
+```
+
+**支持的操作符（`op` 字段）：**
+
+| op | 说明 | 示例 |
+|------|------|------|
+| `eq`（默认） | 等于 | `{"key": "mode", "value": "mapi"}` |
+| `neq` | 不等于 | `{"key": "mode", "op": "neq", "value": "jump"}` |
+| `in` | 值在列表中 | `{"key": "mode", "op": "in", "values": ["mapi", "api"]}` |
+| `empty` | 值为空 | `{"key": "token", "op": "empty"}` |
+| `notEmpty` | 值非空 | `{"key": "token", "op": "notEmpty"}` |
+| `contains` | 包含子串 | `{"key": "url", "op": "contains", "value": "https"}` |
+
+**多条件组合：**
+
+使用 `conditions` 数组 + `logic`（`"and"` 或 `"or"`，默认 `"and"`）组合多个条件：
 
 ```json
 {
-  "config": [
-    { "key": "mode", "label": "接口模式", "type": "select", "default": "jump", "options": [
-      { "value": "jump", "label": "页面跳转" },
-      { "value": "mapi", "label": "API 出码" }
-    ]},
-    { "key": "client_ip", "label": "客户端 IP", "type": "text", "when": { "key": "mode", "value": "mapi" } }
-  ]
+  "key": "mapi_timeout",
+  "label": "MAPI 超时",
+  "type": "number",
+  "when": {
+    "logic": "and",
+    "conditions": [
+      { "key": "mode", "value": "mapi" },
+      { "key": "advanced", "value": "true" }
+    ]
+  }
 }
 ```
 
-当 `mode` 的值不等于 `mapi` 时，`client_ip` 字段会自动隐藏，且不参与必填验证和保存。`when.key` 必须引用同一 `config` 数组中已定义的字段 key，引用不存在的 key 会导致插件加载失败。
+`when.key` 必须引用同一 `config` 数组中已定义的字段 key，引用不存在的 key 会导致插件加载失败。条件嵌套最多一层。
+
+### 动态选项（`options_from`） {#options-from}
+
+当 `select`/`multiselect`/`radio` 的选项需要根据另一个字段的值动态变化时，使用 `options_from`：
+
+```json
+{
+  "key": "sub_type",
+  "label": "子类型",
+  "type": "select",
+  "options_from": {
+    "key": "type",
+    "map": {
+      "alipay": [
+        { "value": "h5", "label": "H5" },
+        { "value": "pc", "label": "PC 网页" }
+      ],
+      "wxpay": [
+        { "value": "native", "label": "Native 扫码" },
+        { "value": "jsapi", "label": "JSAPI" }
+      ]
+    }
+  }
+}
+```
+
+当依赖字段 `type` 的值为 `alipay` 时显示 H5/PC 选项，值为 `wxpay` 时显示 Native/JSAPI 选项。`options_from` 可与 `options` 共存，`options` 作为依赖值不在 `map` 中时的后备选项。当依赖字段值变化后，如果当前选中值不在新选项列表中，会自动清空。
+
+**示例：只读可复制字段（回调地址）**
+
+```json
+{
+  "key": "callback_url",
+  "label": "回调地址",
+  "type": "text",
+  "readonly": true,
+  "computed": "{{baseURL}}/api/callbacks/{{pluginID}}",
+  "copyable": true,
+  "help": "请将此地址填写到支付平台的异步通知 URL 中"
+}
+```
+
+`computed` 模板中的 `{{baseURL}}` 会替换为系统设置的站点 URL，`{{pluginID}}` 替换为当前插件 ID。配合 `readonly` 和 `copyable`，管理员可以直接复制该地址，无需手动拼接。
+
+**示例：分组折叠**
+
+```json
+[
+  { "key": "api_url", "label": "API 地址", "type": "text", "required": true },
+  {
+    "key": "advanced_divider", "label": "高级配置", "type": "divider",
+    "help": "以下为可选的高级配置项",
+    "group": "高级设置", "group_collapsed": true
+  },
+  { "key": "timeout", "label": "超时时间", "type": "number", "default": "30", "group": "高级设置" },
+  { "key": "extra_params", "label": "额外参数", "type": "keyvalue", "group": "高级设置" }
+]
+```
+
+`group_collapsed: true` 标记在分组首个字段上，该分组默认折叠，管理员可点击展开查看。
 
 ::: tip
-`payment` 和 `notify` 类型的插件会自动注入 `enabled` 启用开关字段，无需在 `config` 中手动声明。
+`payment`、`notify` 和 `oauth` 类型的插件会自动注入 `enabled` 启用开关字段，无需在 `config` 中手动声明。
 :::
 
 ## 宿主 API {#host-api}
