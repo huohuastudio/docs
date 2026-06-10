@@ -1,12 +1,13 @@
 # 插件系统
 
-Novaix 支持通过 JavaScript 插件扩展系统功能。您可以编写插件来对接自定义的支付渠道、身份认证平台、短信服务、邮件服务和通知渠道，无需修改系统源代码。
+Novaix 支持通过 JavaScript 插件扩展系统功能。您可以编写插件来对接自定义的支付渠道、人机验证服务、身份认证平台、短信服务、邮件服务和通知渠道，无需修改系统源代码。
 
 ## 插件类型 {#types}
 
 | 类型 | 说明 | 需要导出的函数 | 示例场景 |
 |------|------|-------------|---------|
 | `payment` | 支付渠道 | `createPayment`、`handleCallback` | USDT、虚拟货币支付等 |
+| `captcha` | 人机验证 | `verify` | 极验、reCAPTCHA、hCaptcha、Turnstile 等 |
 | `oauth` | 社会化登录 | `authURL`、`exchange` | 第三方聚合登录平台 |
 | `kyc` | 身份认证 | `verify` | 第三方人脸识别、实名核验 |
 | `sms` | 短信服务 | `send` | 自定义短信平台 |
@@ -59,7 +60,8 @@ flowchart LR
 data/plugins/
 └── my-payment/            ← 插件目录（目录名任意）
     ├── manifest.json      ← 插件信息和配置字段定义
-    └── main.js            ← 插件逻辑代码
+    ├── main.js            ← 插件逻辑代码（后端，所有类型必需）
+    └── widget.js          ← 前端渲染脚本（仅 captcha 类型必需）
 ```
 
 手动放置后，在插件管理页点击「刷新」或重启 Novaix 即可加载。
@@ -70,7 +72,7 @@ data/plugins/
 
 ::: warning 不同类型插件的启用方式
 - **支付 / 通知 / 社会化登录** 类型：在插件管理页启用开关即可，系统会自动将其加入可用渠道列表
-- **短信 / 邮件 / 认证** 类型：除了在插件管理页启用外，还需要到对应的设置页面（如「短信」设置）将当前渠道切换为该插件
+- **短信 / 邮件 / 认证 / 人机验证** 类型：除了在插件管理页启用外，还需要到对应的设置页面（如「短信」设置、「人机验证」设置）将当前渠道切换为该插件
 :::
 
 ## 重载与卸载 {#reload-uninstall}
@@ -154,9 +156,10 @@ Novaix 自带以下官方插件，会随版本升级自动更新：
 | `version` | 否 | 语义化版本号 |
 | `description` | 否 | 插件简短描述 |
 | `author` | 否 | 作者信息，包含 `name`、`email`、`url` |
-| `type` | 是 | 插件类型：`payment`、`oauth`、`kyc`、`sms`、`mail`、`notify` |
+| `type` | 是 | 插件类型：`payment`、`captcha`、`oauth`、`kyc`、`sms`、`mail`、`notify` |
 | `novaix` | 否 | Novaix 版本兼容约束（如 `>=0.6.0`），不满足时插件不会加载 |
 | `config` | 否 | 配置字段数组，定义管理员需要填写的配置项 |
+| `frontend` | 否 | 前端元数据（仅 `captcha` 类型使用），见[人机验证插件](#captcha) |
 
 ### 配置字段 {#config-fields}
 
@@ -321,7 +324,7 @@ Novaix 自带以下官方插件，会随版本升级自动更新：
 `group_collapsed: true` 标记在分组首个字段上，该分组默认折叠，管理员可点击展开查看。
 
 ::: tip
-`payment`、`notify` 和 `oauth` 类型的插件会自动注入 `enabled` 启用开关字段，无需在 `config` 中手动声明。
+`payment`、`notify` 和 `oauth` 类型的插件会自动注入 `enabled` 启用开关字段，无需在 `config` 中手动声明。`captcha` 类型的插件还需要提供 `widget.js` 前端渲染脚本，详见[人机验证插件](#captcha)。
 :::
 
 ## 宿主 API {#host-api}
@@ -539,6 +542,131 @@ function callbackOKResponse() {
 | `emailVerified` | boolean | 邮箱是否已验证 |
 | `displayName` | string | 用户昵称 |
 | `avatarURL` | string | 用户头像 URL |
+
+### 人机验证插件 (captcha) {#captcha}
+
+人机验证插件与其他类型不同，它需要**前端渲染**（加载第三方 SDK、显示验证码组件）和**后端校验**（验证用户提交的 token）两部分配合工作。因此 captcha 插件除了 `manifest.json` 和 `main.js`，还需要一个在浏览器中执行的 `widget.js` 文件。
+
+#### 目录结构
+
+```
+my-captcha/
+├── manifest.json      ← 插件信息 + frontend.csp_domains
+├── main.js            ← 后端校验脚本（Goja 执行）
+└── widget.js          ← 前端渲染脚本（浏览器执行）
+```
+
+#### manifest.json 额外字段
+
+captcha 类型的 manifest 支持 `frontend` 字段，用于声明前端 SDK 的域名白名单（系统会自动加入 CSP 策略）：
+
+```json
+{
+  "id": "turnstile",
+  "name": "Cloudflare Turnstile",
+  "version": "1.0.0",
+  "type": "captcha",
+  "author": { "name": "Novaix" },
+  "frontend": {
+    "csp_domains": ["https://challenges.cloudflare.com"]
+  },
+  "config": [
+    { "key": "site_key", "label": "Site Key", "type": "text", "required": true },
+    { "key": "secret_key", "label": "Secret Key", "type": "password", "required": true }
+  ]
+}
+```
+
+`csp_domains` 数组中的域名会被自动添加到页面的 `script-src`、`connect-src` 和 `frame-src` CSP 指令中，确保第三方验证码 SDK 不被浏览器拦截。
+
+#### verify(req) <Badge type="danger" text="必须导出" /> {#captcha-verify}
+
+在 `main.js` 中导出 `verify` 函数，用于服务端校验验证码 token。
+
+**入参 `req`：**
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `token` | string | 前端验证通过后获得的 token |
+| `ip` | string | 用户 IP 地址 |
+
+**返回值：**
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `success` | boolean | 校验是否通过 |
+| `error` | string | 失败原因（可选，`success` 为 `false` 时使用） |
+
+**示例 main.js（Turnstile）：**
+
+```js
+function verify(req) {
+    var resp = http.request("POST", "https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: url.buildQuery({
+            secret: config.secret_key,
+            response: req.token,
+            remoteip: req.ip
+        })
+    });
+    var data = JSON.parse(resp.body);
+    return { success: data.success === true, error: data.success ? "" : "验证失败" };
+}
+```
+
+#### widget.js 契约 {#widget-contract}
+
+`widget.js` 在用户浏览器中执行，必须定义全局函数 `window.__novaix_captcha_init`：
+
+```js
+/**
+ * @param {HTMLDivElement} container - 挂载点 DOM 元素
+ * @param {Object} config - 插件的公开配置值（非敏感字段，如 site_key）
+ * @param {Object} callbacks
+ * @param {Function} callbacks.onSuccess(token) - 验证通过时调用，传入 token
+ * @param {Function} callbacks.onError(msg) - 验证失败时调用
+ * @param {Function} callbacks.onExpired() - 验证过期时调用
+ */
+window.__novaix_captcha_init = function(container, config, callbacks) {
+    // 在这里加载第三方 SDK 并渲染验证码组件
+};
+
+// 可选：清理函数，组件卸载时调用
+window.__novaix_captcha_destroy = function() {
+    // 清理 SDK 实例和事件监听
+};
+```
+
+**示例 widget.js（Turnstile）：**
+
+```js
+window.__novaix_captcha_init = function(container, config, callbacks) {
+    var script = document.createElement('script');
+    script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?onload=__cfReady&render=explicit';
+    window.__cfReady = function() {
+        window.__novaix_captcha_widget_id = turnstile.render(container, {
+            sitekey: config.site_key,
+            callback: callbacks.onSuccess,
+            'error-callback': callbacks.onError,
+            'expired-callback': callbacks.onExpired,
+        });
+    };
+    document.head.appendChild(script);
+};
+
+window.__novaix_captcha_destroy = function() {
+    if (window.__novaix_captcha_widget_id) {
+        turnstile.remove(window.__novaix_captcha_widget_id);
+    }
+};
+```
+
+::: tip 管理员配置流程
+1. 安装 captcha 插件（上传或从市场安装）
+2. 在插件管理页启用插件并配置 API Key
+3. 进入「设置 → 安全与用户 → 人机验证」，启用人机验证并选择渠道
+4. 在「保护范围」中勾选需要显示验证码的表单（登录、注册、发送验证码、重置密码）
+:::
 
 ### 身份认证插件 (kyc) {#kyc}
 
