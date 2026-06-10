@@ -11,7 +11,7 @@ export const PRODUCTS: Product[] = [
   {
     key: 'novaix',
     name: 'Novaix',
-    logo: '/novaix-logo.png',
+    logo: '/novaix-logo.png?v=2',
     base: '/novaix/',
     home: '/novaix/introduce',
     devBanner: 'Novaix 目前处于早期开发阶段，功能尚未稳定，可能存在严重的 Bug。请勿用于生产环境。',
