@@ -23,9 +23,9 @@ graph TB
 
     subgraph node["节点服务器"]
         sharedIP --> portMap["端口映射规则"]
-        portMap -->|":10000-10019"| vm1["实例 A<br/>10.0.0.2<br/>SSH → :10000"]
-        portMap -->|":10020-10039"| vm2["实例 B<br/>10.0.0.3<br/>SSH → :10020"]
-        portMap -->|":10040-10059"| vm3["实例 C<br/>10.0.0.4<br/>SSH → :10040"]
+        portMap -->|":10000-10019<br/>SSH → :10000"| vm1["实例 A<br/>10.0.0.2"]
+        portMap -->|":10020-10039<br/>SSH → :10020"| vm2["实例 B<br/>10.0.0.3"]
+        portMap -->|":10040-10059<br/>SSH → :10040"| vm3["实例 C<br/>10.0.0.4"]
     end
 
     style sharedIP fill:#f0f4ff,stroke:#4a6cf7
