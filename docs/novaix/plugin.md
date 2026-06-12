@@ -172,7 +172,7 @@ Novaix 自带以下官方插件，会随版本升级自动更新：
 | `type` | string | 字段类型，见下表（必填） |
 | `required` | boolean | 是否必填，保存时校验 |
 | `sensitive` | boolean | 是否敏感，敏感字段会加密存储（`password` 类型默认敏感） |
-| `default` | string | 默认值 |
+| `default` | string / array / object | 默认值。`multiselect` 类型可直接写数组如 `["a","b"]`，`keyvalue` 类型可直接写对象如 `{"k":"v"}`，也兼容 JSON 字符串形式 |
 | `options` | array | `select`/`multiselect`/`radio` 类型的选项列表 |
 | `options_from` | object | 动态选项，依赖另一个字段的值切换选项列表，见[动态选项](#options-from) |
 | `help` | string | 字段下方的帮助说明文字 |
