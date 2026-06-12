@@ -127,3 +127,75 @@ VPC 依赖 OVN 网络。请确认：
    # 停止 Novaix 后执行
    sqlite3 /opt/novaix/novaix.db "VACUUM;"
    ```
+
+## 如何启用高可用（HA）多实例部署？ {#ha-setup}
+
+从 v0.2.3 起，Novaix 支持多实例部署。需要满足以下条件：
+
+1. 使用 MySQL 数据库（SQLite 不支持 HA）
+2. 在 `config.yaml` 中设置 `ha.enabled: true`
+3. 所有实例使用相同的 MySQL、`jwt.secret`、`security.encryption_key`
+4. 共享 `storage.image_dir`（通过 NFS 或对象存储挂载）
+5. 前端使用负载均衡器（如 Nginx upstream）分发请求
+
+启用后，计费、指标采集、任务运行等后台任务会通过分布式锁保证同一时刻只在一个实例上执行。
+
+## 从 SQLite 迁移到 MySQL 的步骤？ {#sqlite-to-mysql}
+
+1. 停止 Novaix 服务
+2. 创建 MySQL 数据库（推荐 `utf8mb4` 字符集）
+3. 修改 `config.yaml` 中 `database.driver` 为 `mysql`，填写 DSN
+4. 启动 Novaix，系统会自动在 MySQL 中执行迁移创建表结构
+5. 使用第三方工具（如 `sqlite3-to-mysql`）将 SQLite 数据导入 MySQL
+
+::: warning
+迁移前务必备份 SQLite 数据库文件。迁移后请验证数据完整性。
+:::
+
+## 插件安装后没有生效？ {#plugin-not-working}
+
+1. 确认插件已在「插件管理」中启用（开关为开启状态）
+2. 确认插件配置已正确填写（如 API 密钥、回调地址等）
+3. 查看「关于」页面确认 Novaix 版本是否满足插件的最低版本要求
+4. 查看终端/日志中是否有插件加载错误信息
+5. 尝试禁用后重新启用插件
+
+## 代理（Agent）系统如何运作？ {#agent-system}
+
+代理系统允许您发展分销商，代理商可以推广您的服务并获得返佣：
+
+- **首单佣金**：用户通过代理链接注册后首次付款，代理获得一次性佣金
+- **续费佣金**：该用户后续每次续费，代理持续获得佣金
+- 佣金比例通过「代理组」配置，不同组可设置不同费率
+- 代理可在用户面板的「代理中心」查看推广链接、下线用户和佣金明细
+
+## 如何配置自定义域名访问？ {#custom-domain}
+
+1. 将域名 DNS 解析到服务器 IP
+2. 配置 Nginx/Caddy 反向代理（参考[安装](./install#nginx)章节）
+3. 申请并配置 SSL 证书（推荐使用 Let's Encrypt）
+4. 修改 `config.yaml` 中 `server.external_url` 为您的域名
+5. 修改 `server.allowed_origins` 为您的域名
+6. 重启 Novaix
+
+## 支持哪些操作系统镜像？ {#supported-images}
+
+Novaix 支持所有 Incus 兼容的 Linux 镜像，包括但不限于：
+
+- Ubuntu、Debian、CentOS、Rocky Linux、AlmaLinux
+- Alpine、Arch Linux、Fedora、openSUSE
+- Windows（需要 QEMU 虚拟机类型）
+
+镜像可以从远程镜像源（如 images.linuxcontainers.org）拉取，也可以通过 URL 下载或手动上传。
+
+## 如何限制用户可购买的实例数量？ {#instance-limit}
+
+目前可以通过以下方式间接控制：
+
+1. 限制 IP 池中的可用 IP 数量
+2. 限制节点组的资源配额
+3. 通过套餐的库存设置控制可售数量
+
+## 实例快照占用多少存储空间？ {#snapshot-storage}
+
+快照使用写时复制（CoW）机制，仅记录自快照创建以来变化的数据块，初始几乎不占用额外空间。随着实例数据变化，快照占用空间会逐渐增大。建议定期清理不再需要的历史快照。

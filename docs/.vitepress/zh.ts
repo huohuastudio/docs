@@ -113,6 +113,8 @@ function sidebarNovaix(): DefaultTheme.SidebarItem[] {
         { text: 'IP 池管理', link: 'ip-pool' },
         { text: '共享 IP', link: 'shared-ip' },
         { text: 'VPC 私有网络', link: 'vpc' },
+        { text: '端口转发', link: 'port-forward' },
+        { text: '反向 DNS', link: 'rdns' },
         { text: '套餐管理', link: 'plan' },
         { text: '对象存储', link: 'storage' },
       ],
@@ -122,9 +124,7 @@ function sidebarNovaix(): DefaultTheme.SidebarItem[] {
       collapsed: false,
       items: [
         { text: '实例管理', link: 'instance' },
-        { text: '端口转发', link: 'port-forward' },
         { text: '流量包', link: 'traffic-package' },
-        { text: '反向 DNS', link: 'rdns' },
         { text: '用户管理', link: 'user' },
         { text: '实名认证', link: 'kyc' },
         { text: '订单与计费', link: 'order' },
@@ -141,13 +141,18 @@ function sidebarNovaix(): DefaultTheme.SidebarItem[] {
         { text: '工单系统', link: 'ticket' },
         { text: '公告管理', link: 'announcement' },
         { text: '监控与告警', link: 'monitoring' },
+        { text: '系统设置', link: 'setting' },
+      ],
+    },
+    {
+      text: '通知与登录',
+      collapsed: false,
+      items: [
         { text: '社会化登录', link: 'oauth' },
         { text: '邮件配置', link: 'mail' },
         { text: '邮件模板', link: 'email-template' },
         { text: '短信服务', link: 'sms' },
         { text: '多渠道通知', link: 'notify' },
-        { text: '系统设置', link: 'setting' },
-        { text: '常见问题', link: 'faq' },
       ],
     },
     {
@@ -158,7 +163,10 @@ function sidebarNovaix(): DefaultTheme.SidebarItem[] {
     {
       text: '参考',
       collapsed: false,
-      items: [{ text: '配置参考', link: 'config' }],
+      items: [
+        { text: '配置参考', link: 'config' },
+        { text: '常见问题', link: 'faq' },
+      ],
     },
   ]
 }
