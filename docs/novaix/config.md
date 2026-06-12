@@ -1,4 +1,4 @@
-# 配置参考
+# 配置参考 {#config}
 
 Novaix 通过 `config.yaml` 文件进行配置，所有配置项均可通过 `NOVAIX_` 前缀的环境变量覆盖。例如 `server.port` 对应 `NOVAIX_SERVER_PORT`。
 

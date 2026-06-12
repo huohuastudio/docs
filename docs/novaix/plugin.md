@@ -1,4 +1,4 @@
-# 插件系统
+# 插件系统 {#plugin}
 
 Novaix 支持通过 JavaScript 插件扩展系统功能。您可以编写插件来对接自定义的支付渠道、人机验证服务、身份认证平台、短信服务、邮件服务和通知渠道，无需修改系统源代码。
 
@@ -44,15 +44,15 @@ flowchart LR
 
 有三种方式安装插件：
 
-### 插件市场安装
+### 插件市场安装 {#install-from-marketplace}
 
 在后台「插件管理」页面切换到「插件市场」Tab，浏览可用的官方插件，点击「安装」即可自动下载并加载。已安装的插件如有新版本，会显示「更新」按钮。
 
-### 上传安装
+### 上传安装 {#install-by-upload}
 
 在后台「插件管理」页面点击「上传安装」按钮，选择 `.zip` 格式的插件包上传。系统会自动解压、校验并加载插件。
 
-### 手动安装
+### 手动安装 {#install-manually}
 
 将插件目录放到 Novaix 数据目录下的 `data/plugins/` 中：
 
@@ -77,11 +77,11 @@ data/plugins/
 
 ## 重载与卸载 {#reload-uninstall}
 
-### 重载插件
+### 重载插件 {#reload}
 
 修改插件的 `main.js` 或 `manifest.json` 后，在插件管理页点击重载按钮（🔄 图标）即可热重载，**无需重启服务**。系统会重新读取磁盘上的文件并重新注册插件。
 
-### 卸载插件
+### 卸载插件 {#uninstall}
 
 在插件管理页点击卸载按钮，确认后系统会：
 - 从渠道注册表中移除该插件
@@ -92,7 +92,7 @@ data/plugins/
 官方内置插件（如易支付）不允许卸载。卸载操作不可撤销，请确认不再需要该插件后再操作。
 :::
 
-### 导出插件
+### 导出插件 {#export}
 
 在插件管理页点击导出按钮，即可将插件打包为 `.zip` 文件下载。导出的 zip 包含 `manifest.json` 和 `main.js`（不含配置数据），可直接通过「上传安装」导入到其他 Novaix 实例。
 
@@ -583,7 +583,7 @@ function getMethods() {
 
 人机验证插件与其他类型不同，它需要**前端渲染**（加载第三方 SDK、显示验证码组件）和**后端校验**（验证用户提交的 token）两部分配合工作。因此 captcha 插件除了 `manifest.json` 和 `main.js`，还需要一个在浏览器中执行的 `widget.js` 文件。
 
-#### 目录结构
+#### 目录结构 {#captcha-structure}
 
 ```
 my-captcha/
@@ -592,7 +592,7 @@ my-captcha/
 └── widget.js          ← 前端渲染脚本（浏览器执行）
 ```
 
-#### manifest.json 额外字段
+#### manifest.json 额外字段 {#captcha-manifest}
 
 captcha 类型的 manifest 支持 `frontend` 字段，用于声明前端 SDK 的域名白名单（系统会自动加入 CSP 策略）：
 
