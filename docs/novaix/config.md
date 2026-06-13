@@ -33,6 +33,7 @@ Novaix 通过 `config.yaml` 文件进行配置，所有配置项均可通过 `NO
 | `admin.initial_password` | - | 初始管理员密码（空时自动生成，仅首次启动生效） |
 | `license.key` | - | 许可证密钥 |
 | `license.service_api` | `https://huohuastudio.com` | 许可证验证服务地址 |
+| `ha.enabled` | `false` | 高可用模式，启用后支持多实例部署（需使用 MySQL） |
 | `demo.enabled` | `false` | 演示模式（定期重置数据） |
 | `demo.reset_interval` | `1h` | 演示模式数据重置间隔 |
 
@@ -54,6 +55,23 @@ database:
   max_idle_conns: 10
   conn_max_lifetime: 3600
 ```
+
+## 高可用部署 {#ha}
+
+启用 `ha.enabled: true` 后，Novaix 支持多实例部署，适合对可用性要求较高的生产环境。
+
+```yaml
+ha:
+  enabled: true
+
+database:
+  driver: mysql
+  dsn: novaix:your-password@tcp(127.0.0.1:3306)/novaix?charset=utf8mb4&parseTime=True
+```
+
+::: warning
+高可用模式**必须使用 MySQL**，不支持 SQLite。启用后系统会将 WebSocket ticket、模拟登录 ticket、OAuth 临时状态等数据存储到数据库（而非内存），并通过分布式锁保护计费、监控采集、任务运行器等后台任务不会在多个实例间重复执行。
+:::
 
 ## 生产环境清单 {#production-checklist}
 
