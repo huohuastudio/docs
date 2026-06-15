@@ -86,7 +86,7 @@ data/themes/
 | `version` | 是 | 语义化版本号（如 `1.0.0`） |
 | `description` | 否 | 主题简短描述 |
 | `author` | 否 | 作者信息，包含 `name`、`email`、`url` |
-| `novaix` | 否 | Novaix 版本兼容约束（如 `~0.2.5` 表示兼容 0.2.x），不满足时主题无法加载 |
+| `novaix` | 是 | Novaix 版本兼容约束（如 `~0.2.5` 表示兼容 0.2.x），不满足时主题无法加载 |
 | `homepage` | 否 | 主题项目主页 URL |
 
 ### 预览图 {#screenshot}
