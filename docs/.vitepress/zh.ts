@@ -158,7 +158,10 @@ function sidebarNovaix(): DefaultTheme.SidebarItem[] {
     {
       text: '扩展',
       collapsed: false,
-      items: [{ text: '插件系统', link: 'plugin' }],
+      items: [
+        { text: '插件系统', link: 'plugin' },
+        { text: '主题系统', link: 'theme' },
+      ],
     },
     {
       text: '参考',

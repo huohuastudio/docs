@@ -73,11 +73,67 @@ admin:
   initial_password: "your-password"  # 仅首次启动时生效
 ```
 
-## 使用 Supervisor 守护进程 {#supervisor}
+## 进程守护 {#process-guard}
 
-在生产环境中，您需要使用进程管理工具来保证 Novaix 持续运行。我们推荐使用 Supervisor 或 systemd。
+在生产环境中，您需要使用进程管理工具来保证 Novaix 持续运行。以下提供三种方式，选择其中一种即可。
 
-### 安装 Supervisor {#install-supervisor}
+### 方式一：宝塔面板（推荐新手使用） {#bt-panel}
+
+如果您的服务器已安装 [宝塔面板](https://www.bt.cn/)，可以通过宝塔的「进程守护管理器」插件来管理 Novaix，全程可视化操作。
+
+#### 安装进程守护管理器
+
+1. 登录宝塔面板，进入 **软件商店**
+2. 搜索「进程守护管理器」
+3. 点击 **安装**
+
+#### 添加守护进程
+
+安装完成后，打开进程守护管理器，点击 **添加守护进程**，填写以下信息：
+
+| 字段 | 值 |
+|------|------|
+| 名称 | `novaix` |
+| 启动命令 | `/usr/local/bin/novaix --config /opt/novaix/config.yaml` |
+| 运行目录 | `/opt/novaix` |
+| 启动用户 | `root` |
+| 进程数量 | `1` |
+
+点击 **确定** 后，Novaix 将自动启动并在异常退出时自动重启。后续可在插件界面中查看运行状态、查看日志、重启或停止进程。
+
+#### 配置 Nginx 反向代理
+
+宝塔面板中添加网站并配置反向代理：
+
+1. 在宝塔面板中点击 **网站** → **添加站点**，填写您的域名（如 `panel.example.com`）
+2. 进入站点设置 → **反向代理** → **添加反向代理**：
+   - 代理名称：`novaix`
+   - 目标 URL：`http://127.0.0.1:8080`
+3. 提交后，点击刚创建的反向代理右侧的 **配置文件**，将内容替换为：
+
+```nginx
+location / {
+    proxy_pass http://127.0.0.1:8080;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+
+    # WebSocket 支持（终端、控制台、任务日志等功能需要）
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_read_timeout 86400;
+}
+```
+
+4. 回到站点设置 → **SSL**，申请 Let's Encrypt 证书并开启强制 HTTPS
+
+::: warning
+必须手动编辑反向代理配置文件添加 WebSocket 支持，宝塔默认生成的反向代理配置不包含 `Upgrade` 和 `Connection` 头的转发，会导致实例终端、控制台、任务日志等功能无法正常使用。
+:::
+
+### 方式二：Supervisor（手动安装） {#supervisor}
 
 ::: code-group
 
@@ -92,8 +148,6 @@ systemctl start supervisord
 ```
 
 :::
-
-### 配置 Supervisor {#configure-supervisor}
 
 创建配置文件 `/etc/supervisor/conf.d/novaix.conf`：
 
@@ -133,7 +187,7 @@ supervisorctl stop novaix        # 停止
 supervisorctl tail -f novaix     # 实时查看日志
 ```
 
-## 使用 systemd 守护进程（可选） {#systemd}
+### 方式三：systemd {#systemd}
 
 如果您更偏好 systemd，创建 `/etc/systemd/system/novaix.service`：
 
@@ -167,6 +221,10 @@ journalctl -u novaix -f          # 实时查看日志
 ```
 
 ## 配置 Nginx 反向代理 {#nginx}
+
+::: tip
+如果您使用宝塔面板部署，反向代理已在[宝塔面板章节](#bt-panel)中配置完成，可跳过此步骤。
+:::
 
 Novaix 本身仅监听 HTTP，生产环境必须使用反向代理处理 HTTPS。
 
