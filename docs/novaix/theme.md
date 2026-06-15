@@ -74,7 +74,7 @@ data/themes/
     "name": "作者名",
     "url": "https://github.com/example"
   },
-  "novaix": "~0.2.5",
+  "requires": "~0.2.5",
   "homepage": "https://github.com/example/novaix-theme-dark"
 }
 ```
@@ -86,7 +86,7 @@ data/themes/
 | `version` | 是 | 语义化版本号（如 `1.0.0`） |
 | `description` | 否 | 主题简短描述 |
 | `author` | 否 | 作者信息，包含 `name`、`email`、`url` |
-| `novaix` | 是 | Novaix 版本兼容约束（如 `~0.2.5` 表示兼容 0.2.x），不满足时主题无法加载 |
+| `requires` | 是 | Novaix 版本兼容约束（如 `~0.2.5` 表示兼容 0.2.x），不满足时主题无法加载 |
 | `homepage` | 否 | 主题项目主页 URL |
 
 ### 预览图 {#screenshot}
@@ -134,7 +134,7 @@ cat > my-theme/theme.json << 'EOF'
   "name": "我的主题",
   "version": "1.0.0",
   "author": {"name": "你的名字"},
-  "novaix": "~0.2.5"
+  "requires": "~0.2.5"
 }
 EOF
 
@@ -149,7 +149,7 @@ cd my-theme && zip -r ../my-theme.zip . && cd ..
 
 ### 版本兼容性 {#compatibility}
 
-主题是完整的前端构建产物，与后端 API 紧密耦合。`theme.json` 中的 `novaix` 字段用于声明兼容的 Novaix 版本范围：
+主题是完整的前端构建产物，与后端 API 紧密耦合。`theme.json` 中的 `requires` 字段用于声明兼容的 Novaix 版本范围：
 
 | 约束 | 含义 | 示例 |
 |------|------|------|

@@ -139,7 +139,7 @@ Novaix 自带以下官方插件，会随版本升级自动更新：
   "license": "MIT",
   "homepage": "https://github.com/example/novaix-plugin-face",
   "type": "kyc",
-  "novaix": ">=0.6.0",
+  "requires": ">=0.6.0",
   "config": [
     { "key": "api_key", "label": "API Key", "type": "password", "required": true },
     { "key": "api_url", "label": "接口地址", "type": "text", "default": "https://api.example.com" }
@@ -157,7 +157,7 @@ Novaix 自带以下官方插件，会随版本升级自动更新：
 | `description` | 否 | 插件简短描述 |
 | `author` | 否 | 作者信息，包含 `name`、`email`、`url` |
 | `type` | 是 | 插件类型：`payment`、`captcha`、`oauth`、`kyc`、`sms`、`mail`、`notify` |
-| `novaix` | 否 | Novaix 版本兼容约束（如 `>=0.6.0`），不满足时插件不会加载 |
+| `requires` | 否 | Novaix 版本兼容约束（如 `>=0.6.0`），不满足时插件不会加载。兼容旧字段名 `novaix` |
 | `config` | 否 | 配置字段数组，定义管理员需要填写的配置项 |
 | `frontend` | 否 | 前端元数据（仅 `captcha` 类型使用），见[人机验证插件](#captcha) |
 
