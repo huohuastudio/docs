@@ -192,4 +192,4 @@ https://your-domain.com/admin/themes?_fallback
 - 版本不兼容的主题会显示错误状态，无法激活
 - 主题只影响前端界面，不会修改后端逻辑或数据
 - 多个主题可以同时安装，但同一时间只能激活一个
-- 官方默认主题可从主题市场下载，方便作为开发基础或用于恢复
+- 前端源码开源在 [novaix-ui](https://github.com/huohuastudio/novaix-ui)，可 fork 后开发自定义主题
