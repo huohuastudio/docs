@@ -14,12 +14,18 @@ Novaix 提供 Provisioning API，让第三方财务系统自动开通和管理 V
 
 ### 工作流
 
-```
-财务系统 ──创建实例──▸ Novaix API ──分配资源──▸ 节点
-                                         │
-                                    任务完成后
-                                         │
-财务系统 ◂──Webhook 通知── Novaix ◂───────┘
+```mermaid
+sequenceDiagram
+    participant F as 财务系统
+    participant N as Novaix
+    participant S as 节点
+
+    F->>N: POST /provision/instances（创建实例）
+    N-->>F: 返回 instance_id + task_id
+    N->>S: 分配资源、拉镜像、启动
+    S-->>N: 创建完成
+    N-->>F: Webhook 通知（task.completed）
+    Note over F,N: 也可主动轮询 GET /provision/tasks/{id}
 ```
 
 所有实例操作都是异步的：API 返回 `task_id` 后，财务系统通过轮询任务状态或接收 Webhook 回调确认最终结果。
