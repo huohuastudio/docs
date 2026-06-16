@@ -2,6 +2,10 @@
 
 Novaix 编译为单个二进制文件，部署非常简单。您只需要下载二进制文件、编辑配置文件，然后启动即可。
 
+::: warning 前置步骤
+安装前请先阅读[快速开始 - 获取许可证](./getting-started#license)，确保已购买许可证并准备好密钥。未配置许可证启动后程序会提示未授权，无法正常使用。
+:::
+
 ## 下载 {#download}
 
 从 [GitHub Releases](https://github.com/huohuastudio/novaix-releases/releases) 下载最新版本的二进制文件：
