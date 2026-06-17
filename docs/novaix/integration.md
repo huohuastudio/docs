@@ -75,7 +75,7 @@ modules/servers/novaix/
 | Port | 服务端口（反代使用 443） |
 | Secure | 使用 HTTPS 时勾选 |
 
-创建产品时在模块配置中填写 NovaIx 套餐 ID、镜像 ID 和可选的节点 ID。
+创建产品时在模块配置中填写 Novaix 套餐 ID、镜像 ID 和可选的节点 ID。
 
 **支持的功能**：自动开通、暂停/解除暂停、删除、开机/关机/重启、重置密码。
 
@@ -92,7 +92,7 @@ public/plugins/server/idcsmart_common/module/novaix/
 
 | 字段 | 填写内容 |
 |------|---------|
-| 模块类型 | `NovaIx VPS` |
+| 模块类型 | `Novaix VPS` |
 | IP 地址 | Novaix 服务器域名或 IP |
 | 密码/Access Hash | `nv_` 开头的 API 密钥 |
 | 端口 | 服务端口 |
@@ -113,7 +113,7 @@ public/plugins/servers/novaix/
 
 | 字段 | 填写内容 |
 |------|---------|
-| 服务器模块 | `NovaIx VPS` |
+| 服务器模块 | `Novaix VPS` |
 | IP 地址 | Novaix 服务器域名或 IP |
 | 密码 | `nv_` 开头的 API 密钥 |
 | 端口 | 服务端口 |

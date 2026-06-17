@@ -30,17 +30,20 @@ ARM 架构服务器请下载 `novaix_linux_arm64.tar.gz`。
 # 创建工作目录
 mkdir -p /opt/novaix
 cd /opt/novaix
-
-# 首次运行，程序会自动生成默认配置文件
-novaix --config config.yaml
-# 看到启动日志后按 Ctrl+C 停止，然后编辑配置
 ```
 
 ::: warning
 Novaix 的工作目录非常重要，数据库文件（SQLite 模式下）、镜像文件、日志等都会存储在这个目录下。请不要在 `/tmp` 等临时目录中运行 Novaix，也不要随意移动工作目录，否则可能导致数据丢失。
 :::
 
-编辑 `config.yaml`，完成以下生产环境必要配置：
+首次在工作目录下运行 Novaix 时，如果指定的配置文件不存在，程序会**自动生成一份带有完整注释的默认 `config.yaml`**，然后继续启动。您可以先运行一次来生成配置文件：
+
+```bash
+# 首次运行，自动生成 config.yaml 后按 Ctrl+C 停止
+novaix --config config.yaml
+```
+
+生成的 `config.yaml` 包含所有可用配置项及其默认值和中文说明，您可以直接在此基础上修改。以下是生产环境**必须修改**的配置项：
 
 ```yaml
 server:
