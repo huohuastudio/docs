@@ -79,9 +79,13 @@ modules/servers/novaix/
 
 **支持的功能**：自动开通、暂停/解除暂停、删除、开机/关机/重启、重置密码。
 
-### 智简魔方 V10 — 上游供应商模式（推荐）{#mofang-v10-upstream}
+### 智简魔方 V10 — 上游供应商模式 <Badge type="warning" text="实验性" /> {#mofang-v10-upstream}
 
 将 Novaix 作为魔方 V10 的"上游供应商"接入，实现商品自动同步和加价转售。适合从 Novaix 批发 VPS 套餐、在魔方中加价出售的代理场景。
+
+::: warning 实验性功能
+上游供应商模式目前为实验性功能，受魔方 V10 插件系统限制，部分前台页面体验可能不够理想。如果遇到问题，建议优先使用下方的[服务器模式](#mofang-v10)。
+:::
 
 #### 前置条件 {#mofang-v10-upstream-prerequisites}
 
