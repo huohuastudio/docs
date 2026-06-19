@@ -1,12 +1,24 @@
 <script setup lang="ts">
 import { useData, useRoute, withBase } from 'vitepress'
 import DefaultTheme from 'vitepress/theme'
-import { computed, nextTick, provide } from 'vue'
+import { computed, nextTick, onMounted, provide, ref } from 'vue'
 import { DEFAULT_PRODUCT, PRODUCTS } from '../products'
 
 const { isDark, site } = useData()
 const { Layout } = DefaultTheme
 const route = useRoute()
+
+const isEmbed = ref(false)
+onMounted(() => {
+  isEmbed.value = new URLSearchParams(window.location.search).get('embed') === '1'
+  if (isEmbed.value) {
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && window.parent !== window) {
+        window.parent.postMessage('help-doc-close', '*')
+      }
+    })
+  }
+})
 
 const currentProduct = computed(
   () => PRODUCTS.find((p) => route.path.startsWith(p.base)),
@@ -51,14 +63,14 @@ provide('toggle-appearance', async ({ clientX: x, clientY: y }: MouseEvent) => {
 </script>
 
 <template>
-  <Layout>
+  <Layout :class="{ 'embed-mode': isEmbed }">
     <template #nav-bar-title-before>
       <img :src="withBase(navTitle.logo)" :alt="navTitle.name" class="product-title__logo" />
       <span class="product-title__name">{{ navTitle.name }}</span>
     </template>
 
     <template #doc-before>
-      <div v-if="currentProduct?.devBanner" class="dev-banner">
+      <div v-if="currentProduct?.devBanner && !isEmbed" class="dev-banner">
         {{ currentProduct.devBanner }}
       </div>
     </template>

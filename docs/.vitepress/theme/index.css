@@ -33,3 +33,34 @@
   border-radius: 8px;
   cursor: zoom-in;
 }
+
+/* 嵌入模式：隐藏导航栏、侧边栏、页脚，内容区全宽 */
+.embed-mode .VPNav,
+.embed-mode .VPSidebar,
+.embed-mode .VPFooter,
+.embed-mode .VPDocFooter,
+.embed-mode .edit-link,
+.embed-mode .prev-next {
+  display: none !important;
+}
+
+.embed-mode .VPDoc {
+  padding-top: 16px !important;
+}
+
+.embed-mode .VPDoc .container {
+  max-width: 100% !important;
+}
+
+.embed-mode .VPContent.has-sidebar {
+  padding-left: 0 !important;
+}
+
+.embed-mode .VPDoc:not(.has-aside) .content-container,
+.embed-mode .VPDoc.has-aside .content-container {
+  max-width: 100% !important;
+}
+
+.embed-mode .VPDoc .aside {
+  display: none !important;
+}
