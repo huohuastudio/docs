@@ -36,6 +36,7 @@
 
 /* 嵌入模式：隐藏导航栏、侧边栏、页脚，内容区全宽 */
 .embed-mode .VPNav,
+.embed-mode .VPLocalNav,
 .embed-mode .VPSidebar,
 .embed-mode .VPFooter,
 .embed-mode .VPDocFooter,
