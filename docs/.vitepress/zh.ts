@@ -89,6 +89,7 @@ function sidebarNovaix(): DefaultTheme.SidebarItem[] {
       collapsed: false,
       items: [
         { text: '介绍', link: 'introduce' },
+        { text: '竞品对比', link: 'comparison' },
         { text: '快速开始', link: 'getting-started' },
         { text: '环境要求', link: 'requirement' },
       ],
