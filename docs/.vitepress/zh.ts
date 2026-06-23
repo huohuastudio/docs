@@ -140,7 +140,7 @@ function sidebarNovaix(): DefaultTheme.SidebarItem[] {
       items: [
         { text: '任务管理', link: 'task' },
         { text: '工单系统', link: 'ticket' },
-        { text: '公告管理', link: 'announcement' },
+        { text: '内容管理', link: 'cms' },
         { text: '监控与告警', link: 'monitoring' },
         { text: '系统设置', link: 'setting' },
       ],
