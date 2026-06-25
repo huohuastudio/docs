@@ -82,6 +82,7 @@ systemctl restart novaix
 您可以通过以下方式查看当前运行的版本：
 
 - 管理面板的「关于」页面
+- 终端运行 `novaix system:info`
 - 接口 `GET /api/v1/ping` 的返回信息
 
 ## 注意事项 {#notes}

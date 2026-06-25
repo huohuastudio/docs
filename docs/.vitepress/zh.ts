@@ -169,6 +169,7 @@ function sidebarNovaix(): DefaultTheme.SidebarItem[] {
       text: '参考',
       collapsed: false,
       items: [
+        { text: 'CLI 管理工具', link: 'cli' },
         { text: '配置参考', link: 'config' },
         { text: '常见问题', link: 'faq' },
       ],
