@@ -88,12 +88,16 @@ CMS 提供通用文件上传接口 `POST /api/v1/admin/upload`，支持 JPG、PN
 
 首页（`/`）还集成了以下 CMS 内容（有数据时自动展示）：
 
-- **轮播图**：`location` 为 `homepage` 的轮播图
+- **轮播图**：`location` 为 `homepage` 的轮播图作为全屏 Hero 背景，导航栏自动切换为沉浸式透明模式；无轮播图时使用默认布局
 - **客户评价**：星级评分卡片
 - **数据中心**：前 6 个数据中心预览
 - **常见问题**：来自 CMS FAQ 模块
 
 所有公共页面共享 PublicLayout 布局，header 和 footer 的导航链接来自 CMS 导航菜单模块（`location` 为 `header` 或 `footer`），友情链接和合作伙伴 Logo 也在 footer 中展示。
+
+### Bootstrap 聚合接口 {#bootstrap}
+
+为减少首页请求数量，默认主题使用聚合接口 `GET /api/v1/public/cms/bootstrap` 一次性获取布局和首页所需的所有 CMS 数据（导航菜单、友情链接、合作伙伴等）。传入 `?scene=home` 参数时额外返回首页专属数据（轮播图、客户评价、数据中心、FAQ）。第三方主题也可使用此接口优化加载性能。
 
 ## 主题开发指南 {#theme-dev}
 
