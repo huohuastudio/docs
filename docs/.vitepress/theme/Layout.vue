@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { useData, useRoute, withBase } from 'vitepress'
 import DefaultTheme from 'vitepress/theme'
-import { computed, nextTick, onMounted, provide, ref } from 'vue'
+import { computed, nextTick, onMounted, provide, ref, watchEffect } from 'vue'
 import { DEFAULT_PRODUCT, PRODUCTS } from '../products'
 
-const { isDark, site } = useData()
+const { isDark, site, theme } = useData()
 const { Layout } = DefaultTheme
 const route = useRoute()
 
@@ -27,6 +27,13 @@ const currentProduct = computed(
 const navTitle = computed(
   () => currentProduct.value ?? { name: site.value.title || DEFAULT_PRODUCT.name, logo: DEFAULT_PRODUCT.logo },
 )
+
+watchEffect(() => {
+  const github = currentProduct.value?.github
+  theme.value.socialLinks = github
+    ? [{ icon: 'github', link: github }]
+    : []
+})
 
 const enableTransitions = () =>
   'startViewTransition' in document &&

@@ -55,9 +55,7 @@ export const shared = withMermaid(
         },
       },
 
-      socialLinks: [
-        { icon: 'github', link: 'https://github.com/huohuastudio' },
-      ],
+      socialLinks: [],
     },
   }),
 )

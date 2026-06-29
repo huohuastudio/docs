@@ -4,6 +4,7 @@ export interface Product {
   logo: string
   base: string
   home: string
+  github?: string
   devBanner?: string
 }
 
@@ -14,6 +15,7 @@ export const PRODUCTS: Product[] = [
     logo: '/novaix-logo.png?v=2',
     base: '/novaix/',
     home: '/novaix/introduce',
+    github: 'https://github.com/huohuastudio/novaix-releases',
     devBanner: 'Novaix 目前处于早期开发阶段，功能尚未稳定，可能存在严重的 Bug。请勿用于生产环境。',
   },
   {
