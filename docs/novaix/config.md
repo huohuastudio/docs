@@ -14,11 +14,11 @@ Novaix 通过 `config.yaml` 文件进行配置，所有配置项均可通过 `NO
 | `server.external_url` | - | 对外访问地址，如 `https://panel.example.com`（生产必填） |
 | `server.allowed_origins` | `["*"]` | CORS 允许的源（生产环境不可使用 `*`） |
 | `server.trusted_proxies` | `[]` | 反向代理 IP，如 `["127.0.0.1"]` |
-| `database.driver` | `sqlite` | 数据库类型，`sqlite` / `mysql` |
-| `database.dsn` | `novaix.db` | SQLite 文件路径 或 MySQL DSN |
-| `database.max_open_conns` | `25` | MySQL 最大打开连接数 |
-| `database.max_idle_conns` | `10` | MySQL 最大空闲连接数 |
-| `database.conn_max_lifetime` | `3600` | MySQL 连接最大存活时间（秒） |
+| `database.driver` | `sqlite` | 数据库类型，`sqlite` / `mysql` / `postgres` |
+| `database.dsn` | `novaix.db` | SQLite 文件路径、MySQL DSN 或 PostgreSQL DSN |
+| `database.max_open_conns` | `25` | MySQL / PostgreSQL 最大打开连接数 |
+| `database.max_idle_conns` | `10` | MySQL / PostgreSQL 最大空闲连接数 |
+| `database.conn_max_lifetime` | `3600` | MySQL / PostgreSQL 连接最大存活时间（秒） |
 | `jwt.secret` | - | JWT 签名密钥（生产必填，≥16 字符） |
 | `jwt.expire` | `24h` | Token 过期时间 |
 | `security.encryption_key` | - | AES-256 加密密钥，用于加密敏感数据（生产必填） |
@@ -35,7 +35,7 @@ Novaix 通过 `config.yaml` 文件进行配置，所有配置项均可通过 `NO
 | `license.service_api` | `https://huohuastudio.com` | 许可证验证服务地址 |
 | `theme.dir` | `data/themes` | 主题存储目录 |
 | `theme.marketplace_url` | - | 自定义主题市场索引地址（默认使用官方源） |
-| `ha.enabled` | `false` | 高可用模式，启用后支持多实例部署（需使用 MySQL） |
+| `ha.enabled` | `false` | 高可用模式，启用后支持多实例部署（需使用 MySQL 或 PostgreSQL） |
 | `demo.enabled` | `false` | 演示模式（定期重置数据） |
 | `demo.reset_interval` | `1h` | 演示模式数据重置间隔 |
 
@@ -58,11 +58,32 @@ database:
   conn_max_lifetime: 3600
 ```
 
+## PostgreSQL DSN 格式 {#postgres-dsn}
+
+如果您使用 PostgreSQL 数据库，`database.dsn` 的格式为：
+
+```
+host=localhost port=5432 user=novaix password=your-password dbname=novaix sslmode=disable
+```
+
+示例：
+
+```yaml
+database:
+  driver: postgres
+  dsn: "host=127.0.0.1 port=5432 user=novaix password=your-password dbname=novaix sslmode=disable"
+  max_open_conns: 25
+  max_idle_conns: 10
+  conn_max_lifetime: 3600
+```
+
 ## 高可用部署 {#ha}
 
 启用 `ha.enabled: true` 后，Novaix 支持多实例部署，适合对可用性要求较高的生产环境。
 
-```yaml
+::: code-group
+
+```yaml [MySQL]
 ha:
   enabled: true
 
@@ -71,8 +92,19 @@ database:
   dsn: novaix:your-password@tcp(127.0.0.1:3306)/novaix?charset=utf8mb4&parseTime=True
 ```
 
+```yaml [PostgreSQL]
+ha:
+  enabled: true
+
+database:
+  driver: postgres
+  dsn: "host=127.0.0.1 port=5432 user=novaix password=your-password dbname=novaix sslmode=disable"
+```
+
+:::
+
 ::: warning
-高可用模式**必须使用 MySQL**，不支持 SQLite。启用后系统会将 WebSocket ticket、模拟登录 ticket、OAuth 临时状态等数据存储到数据库（而非内存），并通过分布式锁保护计费、监控采集、任务运行器等后台任务不会在多个实例间重复执行。
+高可用模式**必须使用 MySQL 或 PostgreSQL**，不支持 SQLite。启用后系统会将 WebSocket ticket、模拟登录 ticket、OAuth 临时状态等数据存储到数据库（而非内存），并通过分布式锁保护计费、监控采集、任务运行器等后台任务不会在多个实例间重复执行。
 :::
 
 ## 生产环境清单 {#production-checklist}

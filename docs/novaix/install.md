@@ -349,7 +349,54 @@ database:
 
 ::: warning
 - 字符集必须使用 `utf8mb4`，否则某些特殊字符（如 emoji）可能无法正常存储
-- 目前不支持从 SQLite 在线迁移到 MySQL，您需要在首次部署时就决定使用哪种数据库
+- 目前不支持在不同数据库之间在线迁移，您需要在首次部署时就决定使用哪种数据库
+:::
+
+## 使用 PostgreSQL 数据库（可选） {#postgres}
+
+如果您偏好 PostgreSQL，可以将数据库从默认的 SQLite 切换到 PostgreSQL。
+
+安装 PostgreSQL：
+
+::: code-group
+
+```bash [Debian / Ubuntu]
+apt install -y postgresql
+```
+
+```bash [CentOS / RHEL]
+yum install -y postgresql-server
+postgresql-setup --initdb
+systemctl enable postgresql
+systemctl start postgresql
+```
+
+:::
+
+创建数据库和用户：
+
+```bash
+sudo -u postgres psql
+```
+
+```sql
+CREATE USER novaix WITH PASSWORD 'your-password';
+CREATE DATABASE novaix OWNER novaix ENCODING 'UTF8';
+```
+
+修改 `config.yaml`：
+
+```yaml
+database:
+  driver: postgres
+  dsn: "host=127.0.0.1 port=5432 user=novaix password=your-password dbname=novaix sslmode=disable"
+  max_open_conns: 25
+  max_idle_conns: 10
+  conn_max_lifetime: 3600
+```
+
+::: warning
+- 目前不支持在不同数据库之间在线迁移，您需要在首次部署时就决定使用哪种数据库
 :::
 
 ## 验证安装 {#verify}
