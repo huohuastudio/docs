@@ -1,32 +1,33 @@
 # 快速开始 {#getting-started}
 
-Novaix 是一款商业软件，您需要先获取许可证密钥才能使用全部功能。
+Novaix 采用 Freemium 模式，部署即可使用免费版，无需注册账号或提前获取许可证。如需解锁全部功能，可以在管理后台在线激活。
 
-## 获取许可证 {#license}
+## 免费版与付费版 {#editions}
 
-您可以在 [Spark Studio 官网](https://huohuastudio.com) 购买 Novaix 许可证。购买后您将获得许可证密钥，需要在 `config.yaml` 中配置。
+未激活时系统以免费版运行，包含完整的实例管理、套餐计费、订单支付、工单系统、CMS 等核心功能，足够运营一个小型 VPS 业务。付费版在此基础上解锁以下高级功能：
 
-::: tip config.yaml 从哪来？
-首次运行 `novaix --config config.yaml` 时，程序会自动生成一份带有完整注释的默认配置文件。详见[安装 - 准备目录与配置](./install#prepare)。
+| 限制项 | 免费版 | 付费版 |
+|--------|--------|--------|
+| 节点数 | ≤ 2 | 不限 |
+| 品牌定制（白标） | 保留 Powered by Novaix | 可自定义/隐藏 |
+| 团队成员 | — | 不限 |
+| 外部集成（WHMCS / 魔方等） | — | ✓ |
+| 告警通知 | — | ✓ |
+| 私有网络（VPC） | — | ✓ |
+| 代理商系统 | — | ✓ |
+| 共享 IP / NAT | — | ✓ |
+| 插件系统 | — | ✓ |
+
+## 激活付费版 {#license}
+
+您可以在 [Spark Studio 官网](https://huohuastudio.com) 购买许可证。购买后登录管理后台，点击右上角的激活图标（皇冠），在弹窗中输入激活码即可完成激活，无需重启服务。
+
+::: tip
+激活码会自动持久化到配置文件，激活后页面会自动刷新，所有付费功能立即解锁。
 :::
 
-在 `config.yaml` 中填写许可证信息：
-
-```yaml
-server:
-  external_url: "https://panel.example.com"  # 必须与授权中心绑定的域名一致
-
-license:
-  key: "您的许可证密钥"
-  service_api: "https://huohuastudio.com"
-```
-
-`server.external_url` 必须填写您在授权中心绑定的域名地址。系统启动时会使用该域名向授权中心验证许可证，域名不匹配将导致验证失败。
-
 ::: warning
-许可证密钥和 `external_url` 只能通过配置文件设置，无法在管理后台中修改。修改后需要重启程序才能生效。
-
-如需更换域名，请先在 [Spark Studio](https://huohuastudio.com) 授权管理中修改绑定的域名，再更新配置文件中的 `external_url` 并重启。
+`server.external_url` 必须填写您在授权中心绑定的域名地址。系统激活时会使用该域名向授权中心验证许可证，域名不匹配将导致验证失败。如需更换域名，请先在 [Spark Studio](https://huohuastudio.com) 授权管理中修改绑定的域名，再更新配置文件中的 `external_url` 并重启。
 :::
 
 ## 部署流程概览 {#deployment-overview}

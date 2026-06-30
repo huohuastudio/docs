@@ -31,8 +31,7 @@ Novaix 通过 `config.yaml` 文件进行配置，所有配置项均可通过 `NO
 | `storage.image_dir` | `data/images` | 镜像和 ISO 文件存储目录 |
 | `node.insecure_skip_verify` | `false` | 是否跳过节点 TLS 证书验证 |
 | `admin.initial_password` | - | 初始管理员密码（空时自动生成，仅首次启动生效） |
-| `license.key` | - | 许可证密钥 |
-| `license.service_api` | `https://huohuastudio.com` | 许可证验证服务地址 |
+| `license.service_api` | `https://huohuastudio.com` | 授权验证服务地址（通常无需修改） |
 | `theme.dir` | `data/themes` | 主题存储目录 |
 | `theme.marketplace_url` | - | 自定义主题市场索引地址（默认使用官方源） |
 | `ha.enabled` | `false` | 高可用模式，启用后支持多实例部署（需使用 MySQL 或 PostgreSQL） |
