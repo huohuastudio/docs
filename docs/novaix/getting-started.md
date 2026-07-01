@@ -10,7 +10,6 @@ Novaix 采用 Freemium 模式，部署即可使用免费版，无需注册账号
 |--------|--------|--------|
 | 节点数 | ≤ 2 | 不限 |
 | HA 高可用（自动疏散） | — | ✓ |
-| 多数据库（MySQL / PostgreSQL） | — | ✓ |
 | 告警通知 | — | ✓ |
 | 私有网络（VPC） | — | ✓ |
 | 代理商系统 | — | ✓ |
@@ -48,8 +47,8 @@ license:
 `server.external_url` 必须填写您在授权中心绑定的域名地址。系统激活时会使用该域名向授权中心验证许可证，域名不匹配将导致验证失败。如需更换域名，请先在 [Spark Studio](https://huohuastudio.com) 授权管理中修改绑定的域名，再更新配置文件中的 `external_url` 并重启。
 :::
 
-::: warning 关于数据库选择
-免费版仅支持 SQLite 数据库。如果您计划使用 MySQL 或 PostgreSQL，建议在首次部署前就完成激活（通过配置文件填写密钥），避免后续需要迁移数据。系统不提供 SQLite 到 MySQL/PostgreSQL 的内置迁移工具。
+::: tip 关于数据库选择
+免费版和授权版均支持 SQLite、MySQL、PostgreSQL 三种数据库。SQLite 零配置，适合快速上手；MySQL 或 PostgreSQL 适合较大规模或高可用部署。建议在首次部署时就确定数据库类型，系统不提供 SQLite 到 MySQL/PostgreSQL 的内置迁移工具。
 :::
 
 ## 部署流程概览 {#deployment-overview}
