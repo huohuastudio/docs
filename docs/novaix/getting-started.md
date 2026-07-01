@@ -19,14 +19,37 @@ Novaix 采用 Freemium 模式，部署即可使用免费版，无需注册账号
 
 ## 激活授权版 {#license}
 
-您可以在 [Spark Studio 官网](https://huohuastudio.com) 购买许可证。购买后登录管理后台，点击右上角的激活图标（皇冠），在弹窗中输入激活码即可完成激活，无需重启服务。
+您可以在 [Spark Studio 官网](https://huohuastudio.com) 购买许可证。购买后有两种方式激活：
+
+### 方式一：在管理后台在线激活（推荐） {#activate-online}
+
+登录管理后台后，点击右上角的激活图标（皇冠），在弹窗中输入激活码即可完成激活，无需重启服务。
 
 ::: tip
 激活码会自动持久化到配置文件，激活后页面会自动刷新，所有授权版功能立即解锁。
 :::
 
+### 方式二：通过配置文件激活 {#activate-config}
+
+如果您在部署前就已购买许可证，可以直接在 `config.yaml` 中填写密钥，启动即为授权版：
+
+```yaml
+license:
+  key: "您的许可证密钥"
+```
+
+::: tip
+通过配置文件激活需要重启程序才能生效。`service_api` 默认指向官方授权服务，通常无需修改。
+:::
+
+### 注意事项 {#license-notes}
+
 ::: warning
 `server.external_url` 必须填写您在授权中心绑定的域名地址。系统激活时会使用该域名向授权中心验证许可证，域名不匹配将导致验证失败。如需更换域名，请先在 [Spark Studio](https://huohuastudio.com) 授权管理中修改绑定的域名，再更新配置文件中的 `external_url` 并重启。
+:::
+
+::: warning 关于数据库选择
+免费版仅支持 SQLite 数据库。如果您计划使用 MySQL 或 PostgreSQL，建议在首次部署前就完成激活（通过配置文件填写密钥），避免后续需要迁移数据。系统不提供 SQLite 到 MySQL/PostgreSQL 的内置迁移工具。
 :::
 
 ## 部署流程概览 {#deployment-overview}
