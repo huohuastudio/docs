@@ -43,6 +43,19 @@
 
 初始化是一个异步任务，您可以在任务列表中查看进度和日志。初始化完成后，系统会自动同步节点资源信息。
 
+::: warning 操作系统要求
+初始化要求节点服务器运行受支持的操作系统，不满足要求的系统（如 Ubuntu 18.04）将无法完成初始化。支持的操作系统及最低版本：
+
+- **Ubuntu** 20.04+（推荐 24.04 LTS）
+- **Debian** 11+
+- **CentOS / RHEL / Rocky Linux / AlmaLinux** 9+
+- **Fedora** 38+
+- **openSUSE Leap** 15.5+ / Tumbleweed
+- **Arch Linux**、**Alpine**、**Void Linux**、**Gentoo**
+
+详见[环境要求 — 节点要求](./requirement#node)。
+:::
+
 ::: warning
 如果您的节点上已有运行中的实例，初始化不会影响这些实例。初始化完成后，您可以使用「同步」功能将已有实例导入到 Novaix 中。
 :::
