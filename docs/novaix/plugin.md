@@ -50,7 +50,7 @@ flowchart LR
 
 ### 上传安装 {#install-by-upload}
 
-在后台「插件管理」页面点击「上传安装」按钮，选择 `.zip` 格式的插件包上传。系统会自动解压、校验并加载插件。
+在后台「插件管理」页面点击「上传安装」按钮，选择 `.zip` 格式的插件包上传（最大 10MB）。系统会自动解压、校验并加载插件。
 
 ### 手动安装 {#install-manually}
 
@@ -58,7 +58,7 @@ flowchart LR
 
 ```
 data/plugins/
-└── my-payment/            ← 插件目录（目录名任意）
+└── my-payment/            ← 插件目录（目录名必须与 manifest.json 中的 id 一致）
     ├── manifest.json      ← 插件信息和配置字段定义
     ├── main.js            ← 插件逻辑代码（后端，所有类型必需）
     └── widget.js          ← 前端渲染脚本（仅 captcha 类型必需）
@@ -114,6 +114,7 @@ plugin:
 Novaix 自带以下官方插件，会随版本升级自动更新：
 
 - **易支付**（epay）— 支付渠道，兼容彩虹易支付 / ZPAY 等通用规范
+- **极验行为验证**（geetest）— 人机验证，支持滑动、点选、无感三种模式
 - **彩虹聚合登录**（clogin）— 社会化登录，支持 QQ、微信、支付宝等
 - **短信宝**（smsbao）— 短信服务，低价短信验证码
 - **PushPlus**（pushplus）— 通知渠道，通过微信公众号推送通知
@@ -139,7 +140,7 @@ Novaix 自带以下官方插件，会随版本升级自动更新：
   "license": "MIT",
   "homepage": "https://github.com/example/novaix-plugin-face",
   "type": "kyc",
-  "requires": ">=0.6.0",
+  "requires": ">=0.2.0",
   "config": [
     { "key": "api_key", "label": "API Key", "type": "password", "required": true },
     { "key": "api_url", "label": "接口地址", "type": "text", "default": "https://api.example.com" }
@@ -157,7 +158,7 @@ Novaix 自带以下官方插件，会随版本升级自动更新：
 | `description` | 否 | 插件简短描述 |
 | `author` | 否 | 作者信息，包含 `name`、`email`、`url` |
 | `type` | 是 | 插件类型：`payment`、`captcha`、`oauth`、`kyc`、`sms`、`mail`、`notify` |
-| `requires` | 否 | Novaix 版本兼容约束（如 `>=0.6.0`），不满足时插件不会加载。兼容旧字段名 `novaix` |
+| `requires` | 否 | Novaix 版本兼容约束（如 `>=0.2.0`），不满足时插件不会加载。兼容旧字段名 `novaix` |
 | `config` | 否 | 配置字段数组，定义管理员需要填写的配置项 |
 | `frontend` | 否 | 前端元数据（仅 `captcha` 类型使用），见[人机验证插件](#captcha) |
 
@@ -184,6 +185,35 @@ Novaix 自带以下官方插件，会随版本升级自动更新：
 | `readonly` | boolean | 只读字段，不可编辑，保存时跳过 |
 | `copyable` | boolean | 显示复制按钮，方便复制字段值 |
 | `computed` | string | 值模板，前端自动解析变量。支持 `{{baseURL}}`（站点 URL）和 `{{pluginID}}`（插件 ID） |
+| `validation` | object | 字段校验规则，见[字段校验](#validation) |
+
+### 字段校验 {#validation}
+
+配置字段支持通过 `validation` 对象定义校验规则，保存时会在后端执行校验：
+
+| 属性 | 类型 | 说明 |
+|------|------|------|
+| `pattern` | string | 正则表达式，值必须匹配该模式 |
+| `message` | string | 校验失败时的提示文案 |
+| `min` | number | 最小值（`number` 类型）或最小长度（文本类型） |
+| `max` | number | 最大值（`number` 类型）或最大长度（文本类型） |
+| `min_length` | number | 最小字符长度（仅文本类型） |
+| `max_length` | number | 最大字符长度（仅文本类型） |
+
+示例：
+
+```json
+{
+  "key": "api_key",
+  "label": "API Key",
+  "type": "text",
+  "required": true,
+  "validation": {
+    "pattern": "^[A-Za-z0-9]{32}$",
+    "message": "API Key 必须是 32 位字母数字"
+  }
+}
+```
 
 ### 字段类型详解 {#field-types}
 
@@ -397,7 +427,7 @@ var hash = crypto.md5("hello");
 
 | 方法 | 签名 | 说明 |
 |------|------|------|
-| `url.encode` | `(str) → string` | URL 编码（`encodeURIComponent` 等效） |
+| `url.encode` | `(str) → string` | URL query 参数编码（等同 Go `url.QueryEscape`，空格编码为 `+`） |
 | `url.buildQuery` | `(params) → string` | 将对象转为查询字符串，按 key 排序 |
 
 ```js

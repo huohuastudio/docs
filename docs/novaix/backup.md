@@ -1,6 +1,25 @@
 # 备份与恢复 {#backup}
 
-定期备份是保障数据安全的基本操作。Novaix 的数据备份主要包括数据库文件和配置文件。
+定期备份是保障数据安全的基本操作。Novaix 的备份分为两个层面：**管理面板数据备份**（数据库和配置文件）和**实例自动快照备份**。
+
+## 实例自动备份 {#auto-backup}
+
+Novaix 支持对实例进行定时自动快照备份。在管理后台「系统设置」→「自动备份」中配置全局策略：
+
+| 设置项 | 默认值 | 说明 |
+|--------|--------|------|
+| 启用自动备份 | 关闭 | 是否启用全局自动备份策略 |
+| 执行频率 | 每天 | 自动备份的执行频率，支持每天或每周 |
+| 保留数量 | 3 | 每个实例保留的自动快照数量，超出时自动清理最旧的快照 |
+| 执行时间 | 3 点 | 每天执行自动备份的小时（0-23） |
+
+启用全局策略后，每个实例还需要单独开启 `auto_backup` 标记才会参与自动备份。系统会在指定时间自动为符合条件的实例（运行中或已停止）创建以 `auto-` 前缀命名的快照，并按保留数量自动清理历史快照。
+
+::: tip
+自动备份策略是全局配置，但执行范围以实例级别控制。用户可在实例详情页查看自动备份策略详情（执行频率、执行时间、保留数量）。管理员未启用全局策略时，用户侧会显示明确提示。
+:::
+
+以下是管理面板数据的手动备份方法。
 
 ## SQLite 备份（默认） {#sqlite-backup}
 
@@ -32,6 +51,20 @@ mysqldump -u root -p novaix > /backup/novaix-$(date +%Y%m%d).sql
 0 3 * * * mysqldump -u novaix_user -pYOUR_PASSWORD novaix > /backup/novaix-$(date +\%Y\%m\%d).sql
 ```
 
+## PostgreSQL 备份 {#postgres-backup}
+
+```bash
+# 手动备份
+pg_dump -U novaix novaix > /backup/novaix-$(date +%Y%m%d).sql
+```
+
+设置定期自动备份：
+
+```bash
+# 每天凌晨 3 点自动备份
+0 3 * * * pg_dump -U novaix novaix > /backup/novaix-$(date +\%Y\%m\%d).sql
+```
+
 ## 恢复 {#restore}
 
 ### 恢复 SQLite {#restore-sqlite}
@@ -60,6 +93,19 @@ mysql -u root -p novaix < /backup/novaix-20260530.sql
 supervisorctl start novaix
 ```
 
+### 恢复 PostgreSQL {#restore-postgres}
+
+```bash
+# 停止服务
+supervisorctl stop novaix
+
+# 恢复数据库
+psql -U novaix novaix < /backup/novaix-20260530.sql
+
+# 启动服务
+supervisorctl start novaix
+```
+
 ## 配置文件备份 {#config-backup}
 
 除了数据库，您还应该备份以下文件：
@@ -75,9 +121,9 @@ supervisorctl start novaix
 
 ## 对象存储与备份 {#object-storage}
 
-如果您配置了[对象存储](./storage)，镜像和 ISO 文件会自动归档到对象存储中。这意味着：
+如果您配置了[对象存储](./storage)，镜像和 ISO 文件会异步归档到对象存储中。这意味着：
 
-- 本地磁盘损坏时，镜像文件可以从对象存储自动恢复，无需手动处理
+- 本地磁盘损坏时，系统会尝试从对象存储自动恢复镜像文件。归档或恢复失败时仅记录告警日志，不影响其他功能
 - 对象存储**不替代数据库备份**，数据库中的订单、用户、配置等数据仍需单独备份
 - 建议同时备份 `config.yaml`，其中包含对象存储的访问凭证
 

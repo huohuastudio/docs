@@ -6,7 +6,7 @@
 
 | 产品 | 开发商 | 定位 | 技术栈 | 授权模式 |
 |------|--------|------|--------|---------|
-| **Novaix** | Spark Studio | 面向中小 VPS 服务商的 IDC 管理系统 | Go + React，单二进制 | 商业授权 |
+| **Novaix** | Spark Studio | 面向中小 VPS 服务商的 IDC 管理系统 | Go + React，单二进制 | Freemium（免费版 + 商业授权版） |
 | **智简魔方** | 重庆顺戴网络 | IDC 全链业务管理（财务+云+DCIM） | PHP + Vue（前后端分离） | V10 开源 / 专业版商业 |
 | **ZKEYS** | 小鸟云（阿帕云引擎） | 企业级公有云管理系统 | .NET / PHP | 商业授权，价格较高 |
 | **SolusVM 2** | WebPros（cPanel 母公司） | 老牌 VPS 管理面板 | 闭源 | 商业授权，$10/月起 |
@@ -73,7 +73,7 @@
 
 | 能力 | Novaix | 智简魔方 | ZKEYS | SolusVM 2 | Virtualizor | VirtFusion |
 |------|--------|---------|-------|-----------|-------------|------------|
-| 插件系统 | :white_check_mark:（6 种类型） | :white_check_mark: | :white_check_mark: | :x: | :x: | :x: |
+| 插件系统 | :white_check_mark:（7 种类型） | :white_check_mark: | :white_check_mark: | :x: | :x: | :x: |
 | 主题 / 模板市场 | :white_check_mark: | :white_check_mark: | :x: | :x: | :x: | :x: |
 | 前端源码开源 | :white_check_mark: | :x: | :x: | :x: | :x: | :x: |
 | Webhook 回调 | :white_check_mark: | :white_check_mark: | :x: | :x: | :x: | :white_check_mark: |

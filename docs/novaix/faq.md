@@ -18,15 +18,18 @@ journalctl -u novaix | grep "密码"
 
 ## 忘记了管理员密码怎么办？ {#forgot-password}
 
-如果您配置了[邮件服务](./mail)或[短信服务](./sms)，可以通过登录页面的「忘记密码」功能重置密码。支持邮箱验证码和手机短信验证码两种方式。如果两种方式都未配置，目前暂时没有其他方式重置密码，请务必妥善保管管理员密码。
+有以下几种方式重置管理员密码：
+
+1. **CLI 命令行**（推荐）：使用 `novaix admin:reset-password` 命令直接重置，支持 `--user` 指定用户名（默认 admin）、`--password` 指定新密码（不指定则自动生成）。详见 [CLI 管理工具](./cli)
+2. **忘记密码功能**：如果配置了[邮件服务](./mail)或[短信服务](./sms)，可以通过登录页面的「忘记密码」功能，使用邮箱验证码或手机短信验证码重置密码
 
 ## 环境变量和配置文件的关系？ {#env-vs-config}
 
 所有配置项都可以通过 `NOVAIX_` 前缀的环境变量覆盖。例如 `server.port` 对应 `NOVAIX_SERVER_PORT`，`jwt.secret` 对应 `NOVAIX_JWT_SECRET`。环境变量的优先级高于配置文件。
 
-## 可以同时使用 SQLite 和 MySQL 吗？ {#sqlite-and-mysql}
+## 可以同时使用多种数据库吗？ {#multiple-databases}
 
-不可以，同一时间只能使用一种数据库。如果需要从 SQLite 切换到 MySQL，需要手动迁移数据。
+不可以，同一时间只能使用一种数据库（SQLite、MySQL 或 PostgreSQL）。如果需要从 SQLite 切换到 MySQL 或 PostgreSQL，需要手动迁移数据。
 
 ## 节点连接失败怎么排查？ {#node-connection-failed}
 
@@ -56,7 +59,7 @@ journalctl -u novaix | grep "密码"
 
 ## TOTP 双因素认证丢失了怎么办？ {#totp-lost}
 
-如果您丢失了 TOTP 设备（手机损坏、应用被删除等），目前暂时没有自助恢复方式。请在绑定 TOTP 时妥善保管恢复码或将密钥备份在安全的地方。
+如果您丢失了 TOTP 设备（手机损坏、应用被删除等），目前没有自助恢复方式，需要运维人员在数据库中手动清除用户的 TOTP 绑定状态。请在绑定 TOTP 时务必将密钥或 otpauth URI 备份在安全的地方，以便在更换设备时重新导入。
 
 ## 用户购买后实例一直显示「创建中」？ {#instance-stuck-creating}
 
@@ -70,7 +73,7 @@ journalctl -u novaix | grep "密码"
 
 ## 实例到期后会被直接删除吗？ {#instance-expiry}
 
-实例到期后系统会自动停止实例，不会立即删除。具体的到期处理策略取决于您在系统设置中的配置。建议设置合理的宽限期，给用户足够的时间续费。
+实例到期后系统会按「暂停宽限天数」配置自动冻结实例（默认 0 天，即到期立即冻结），不会立即删除。到期后超过「删除宽限天数」（默认 7 天，从到期时间起算）且仍处于冻结状态时才会自动删除。冻结期间续费后实例恢复为已停止状态，需手动启动。建议设置合理的宽限期，给用户足够的时间续费。
 
 ## 更换了服务器怎么迁移？ {#server-migration}
 
@@ -80,7 +83,7 @@ journalctl -u novaix | grep "密码"
 4. 在新服务器上启动服务
 5. 更新反向代理配置和 DNS 解析
 
-如果使用 SQLite，数据库文件在工作目录下，一起复制即可。如果使用 MySQL，还需要单独迁移数据库。
+如果使用 SQLite，数据库文件在工作目录下，一起复制即可。如果使用 MySQL 或 PostgreSQL，还需要单独迁移数据库。
 
 ::: warning
 迁移后请确保 `config.yaml` 中的 `server.external_url` 和 `server.allowed_origins` 与新的域名一致。如果域名不变则无需修改。
@@ -91,11 +94,12 @@ journalctl -u novaix | grep "密码"
 | 特性 | debug | release |
 |------|-------|---------|
 | 错误详情 | 在 API 响应中返回详细错误堆栈 | 只返回通用错误信息 |
-| API 文档 | 可访问 `/docs` 查看 | 不可访问 |
 | 日志级别 | 输出更详细的调试日志 | 仅输出 info 及以上级别 |
 | 演示模式 | 可启用 | 不可启用 |
 
-生产环境**必须**使用 `release` 模式。`debug` 模式仅用于开发和测试，在生产环境中使用会暴露敏感的错误信息和接口文档，存在安全风险。
+API 文档（`/docs`）的访问由后台「高级设置」中的「API 文档」开关控制，默认关闭，与运行模式无关。
+
+生产环境**必须**使用 `release` 模式。`debug` 模式仅用于开发和测试，在生产环境中使用会暴露敏感的错误信息，存在安全风险。
 
 ## VPC 创建失败提示 OVN 未启用？ {#vpc-ovn-not-enabled}
 
@@ -132,21 +136,21 @@ VPC 依赖 OVN 网络。请确认：
 
 从 v0.2.3 起，Novaix 支持多实例部署。需要满足以下条件：
 
-1. 使用 MySQL 数据库（SQLite 不支持 HA）
+1. 使用 MySQL 或 PostgreSQL 数据库（SQLite 不支持 HA）
 2. 在 `config.yaml` 中设置 `ha.enabled: true`
-3. 所有实例使用相同的 MySQL、`jwt.secret`、`security.encryption_key`
+3. 所有实例使用相同的数据库、`jwt.secret`、`security.encryption_key`
 4. 共享 `storage.image_dir`（通过 NFS 或对象存储挂载）
 5. 前端使用负载均衡器（如 Nginx upstream）分发请求
 
 启用后，计费、指标采集、任务运行等后台任务会通过分布式锁保证同一时刻只在一个实例上执行。
 
-## 从 SQLite 迁移到 MySQL 的步骤？ {#sqlite-to-mysql}
+## 从 SQLite 迁移到 MySQL / PostgreSQL 的步骤？ {#sqlite-to-external-db}
 
 1. 停止 Novaix 服务
-2. 创建 MySQL 数据库（推荐 `utf8mb4` 字符集）
-3. 修改 `config.yaml` 中 `database.driver` 为 `mysql`，填写 DSN
-4. 启动 Novaix，系统会自动在 MySQL 中执行迁移创建表结构
-5. 使用第三方工具（如 `sqlite3-to-mysql`）将 SQLite 数据导入 MySQL
+2. 创建目标数据库（MySQL 推荐 `utf8mb4` 字符集）
+3. 修改 `config.yaml` 中 `database.driver` 为 `mysql` 或 `postgres`，填写对应的 DSN（格式参考[配置参考](./config#mysql-dsn)）
+4. 启动 Novaix，系统会自动在目标数据库中执行迁移创建表结构
+5. 使用第三方工具将 SQLite 数据导入目标数据库
 
 ::: warning
 迁移前务必备份 SQLite 数据库文件。迁移后请验证数据完整性。
@@ -180,7 +184,7 @@ VPC 依赖 OVN 网络。请确认：
 
 ## 支持哪些操作系统镜像？ {#supported-images}
 
-Novaix 支持所有 Incus 兼容的 Linux 镜像，包括但不限于：
+Novaix 支持主流 Linux 发行版镜像，包括但不限于：
 
 - Ubuntu、Debian、CentOS、Rocky Linux、AlmaLinux
 - Alpine、Arch Linux、Fedora、openSUSE

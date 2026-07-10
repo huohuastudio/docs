@@ -4,8 +4,8 @@
 Novaix 自身已提供完整的用户前台、套餐管理、订单计费、支付集成、工单系统等功能，**大多数场景下无需额外对接第三方财务系统**。直接使用 Novaix 可以获得最佳的用户体验和最低的运维成本。
 :::
 
-::: warning WHMCS / 魔方模块已停止维护
-WHMCS 模块和魔方（智简魔方）对接模块已停止维护，不会继续更新，可能与新版本存在兼容性问题。Provisioning API 和 Webhook 接口仍保持稳定，如有自定义对接需求可直接使用 API。
+::: warning WHMCS / 魔方服务器模块已停止维护
+WHMCS 模块、魔方 V10 服务器模式模块和魔方 2.x 模块已停止维护，不会继续更新，可能与新版本存在兼容性问题。**魔方 V10 上游供应商模式**仍在维护中。Provisioning API 和 Webhook 接口保持稳定，如有自定义对接需求可直接使用 API。
 :::
 
 Novaix 提供 Provisioning API，让第三方系统自动开通和管理 VPS 实例。
@@ -28,12 +28,12 @@ sequenceDiagram
     participant N as Novaix
     participant S as 节点
 
-    F->>N: POST /provision/instances（创建实例）
+    F->>N: POST /api/v1/provision/instances（创建实例）
     N-->>F: 返回 instance_id + task_id
     N->>S: 分配资源、拉镜像、启动
     S-->>N: 创建完成
     N-->>F: Webhook 通知（task.completed）
-    Note over F,N: 也可主动轮询 GET /provision/tasks/{id}
+    Note over F,N: 也可主动轮询 GET /api/v1/provision/tasks/{id}
 ```
 
 所有实例操作都是异步的：API 返回 `task_id` 后，财务系统通过轮询任务状态或接收 Webhook 回调确认最终结果。
@@ -45,9 +45,9 @@ sequenceDiagram
 进入管理面板 → 系统设置 → 集成方管理 → 新建：
 
 - **名称**：描述性名称，如"魔方主站"
-- **回调地址**：财务系统的 Webhook 接收端 HTTPS URL
+- **回调地址**：财务系统的 Webhook 接收端 HTTPS URL（可留空，不需要接收回调时可不配置）
 
-保存后立即记录 `callback_secret`，仅展示一次。
+配置了回调地址时，保存后会生成 `callback_secret`，请立即记录，仅展示一次。
 
 ### 2. 创建 API 密钥
 
@@ -92,7 +92,7 @@ modules/servers/novaix/
 将 Novaix 作为魔方 V10 的"上游供应商"接入，实现商品自动同步和加价转售。适合从 Novaix 批发 VPS 套餐、在魔方中加价出售的代理场景。
 
 ::: warning 实验性功能
-上游供应商模式目前为实验性功能，受魔方 V10 插件系统限制，部分前台页面体验可能不够理想。如果遇到问题，建议优先使用下方的[服务器模式](#mofang-v10)。
+上游供应商模式目前为实验性功能，受魔方 V10 插件系统限制，部分前台页面体验可能不够理想。
 :::
 
 #### 前置条件 {#mofang-v10-upstream-prerequisites}
@@ -181,7 +181,7 @@ sequenceDiagram
 
     Note over C,N: 日常管理阶段
     C->>M: 在魔方前台操作（开关机/重启等）
-    M->>N: POST /renovaix/:id/:action
+    M->>N: POST /compat/mofang/console/v1/renovaix/:id/{on|off|...}
     N-->>M: 返回操作结果
 ```
 
@@ -277,9 +277,11 @@ public/plugins/servers/novaix/
 | 幂等创建 | ✅ | ✅ | ✅ | ✅ |
 | VNC 控制台 | ❌ | ✅ | ❌ | ❌ |
 
+> VNC 控制台仅魔方 V10 上游供应商模式支持（通过独立 noVNC 页面）。Provisioning API 的 VNC 端点当前未开放，调用返回 400 业务错误。
+
 ## Webhook 回调 {#webhook}
 
-任务完成或失败时，Novaix 会向集成方配置的回调地址 POST 通知：
+任务完成或失败时，Novaix 会向集成方配置的回调地址 POST 通知。以下为创建实例成功时的回调示例（`data` 字段仅在创建实例成功时包含 IP 和主机名，其他任务类型或失败时可能不含 `data`）：
 
 ```json
 {
@@ -299,7 +301,7 @@ public/plugins/servers/novaix/
 签名通过 `X-Novaix-Signature` 头传递，使用 HMAC-SHA256 算法，密钥为集成方的 `callback_secret`。接收端**必须验证签名**。
 
 ::: warning
-Webhook 是 best-effort 投递（最多重试 3 次），不是可靠交付。关键状态确认请使用任务轮询接口作为兜底。
+Webhook 是 best-effort 投递（最多投递 3 次，即首次 + 最多 2 次重试），不是可靠交付。关键状态确认请使用任务轮询接口作为兜底。
 :::
 
 ## API 密钥轮换 {#key-rotation}

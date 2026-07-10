@@ -19,27 +19,32 @@ flowchart TD
     backup --> stop["停止当前服务"]
     stop --> migrate["执行数据库迁移"]
     migrate --> migOk{"迁移成功？"}
-    migOk -->|失败| rollbackDB["恢复数据库备份<br/>恢复旧二进制"]
+    migOk -->|失败（SQLite）| rollbackDB["恢复数据库备份<br/>恢复旧二进制"]
     rollbackDB --> restart1["启动旧版本"]
+    migOk -->|失败（MySQL/PG）| manualFix["停机保留现场<br/>等待人工处理"]
     migOk -->|成功| replace["替换为新二进制"]
     replace --> start["启动新版本"]
     start --> startOk{"启动成功？"}
     startOk -->|成功| done["更新完成 ✓"]
-    startOk -->|连续失败 3 次| rollbackBin["自动回滚旧二进制"]
+    startOk -->|连续失败 3 次<br/>SQLite/迁移前| rollbackBin["自动回滚旧二进制"]
     rollbackBin --> restart2["启动旧版本"]
+    startOk -->|连续失败 3 次<br/>MySQL/PG 已迁移| manualFix2["停机保留现场<br/>需人工处理"]
 
     style done fill:#ecfdf5,stroke:#10b981
     style rollbackDB fill:#fef2f2,stroke:#ef4444
     style rollbackBin fill:#fef2f2,stroke:#ef4444
+    style manualFix fill:#fef2f2,stroke:#ef4444
+    style manualFix2 fill:#fef2f2,stroke:#ef4444
 ```
 
 ### 更新安全机制 {#safety}
 
 在线更新过程中，系统会自动处理数据库迁移，并内置了多重保护机制：
 
-- **SQLite 自动备份**：执行数据库迁移前，系统会自动备份 SQLite 数据库文件。如果迁移失败，自动恢复到备份状态
+- **SQLite 自动备份与回滚**：执行数据库迁移前，系统会自动备份 SQLite 数据库文件。如果迁移失败，自动恢复数据库并回滚到旧版本
+- **MySQL / PostgreSQL 停机保护**：DDL 操作会隐式提交，无法通过事务回滚。迁移失败后系统会停机保留现场，不会用旧二进制跑新 schema，需人工恢复备份后重试
 - **Crash Recovery**：如果更新过程中程序意外崩溃（如断电），下次启动时系统会检测到未完成的更新并自动恢复
-- **启动失败回滚**：如果新版本连续启动失败超过 3 次，系统会自动回滚到旧版本
+- **启动失败回滚**：如果新版本连续启动失败超过 3 次，SQLite 环境或迁移前阶段会自动回滚到旧版本；MySQL/PostgreSQL 在迁移已完成后不会自动回滚（避免旧代码跑新 schema），会停机保留现场等待人工处理
 
 ::: warning
 MySQL 和 PostgreSQL 的 DDL 操作（如添加列、修改表结构）会隐式提交，无法通过事务回滚。如果使用 MySQL 或 PostgreSQL 且即将进行重大版本更新，建议在更新前手动备份数据库。详见[备份与恢复](./backup)。
@@ -83,7 +88,6 @@ systemctl restart novaix
 
 - 管理面板的「关于」页面
 - 终端运行 `novaix system:info`
-- 接口 `GET /api/v1/ping` 的返回信息
 
 ## 注意事项 {#notes}
 

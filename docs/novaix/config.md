@@ -29,14 +29,20 @@ Novaix 通过 `config.yaml` 文件进行配置，所有配置项均可通过 `NO
 | `collector.retention` | `720` | 监控数据保留时间（小时，默认 30 天） |
 | `collector.timeout` | `10` | 单次采集超时（秒） |
 | `storage.image_dir` | `data/images` | 镜像和 ISO 文件存储目录 |
-| `node.insecure_skip_verify` | `false` | 是否跳过节点 TLS 证书验证 |
+| `storage.upload_dir` | `data/uploads` | 用户上传文件存储目录（CMS 图片等） |
+| `node.insecure_skip_verify` | `true` | 是否跳过节点 TLS 证书验证（证书通过 SSH 安全通道下发，默认跳过以避免时钟偏差导致验证失败） |
 | `admin.initial_password` | - | 初始管理员密码（空时自动生成，仅首次启动生效） |
+| `admin.path` | `admin` | 管理后台访问路径前缀，修改后通过 `/您的路径` 访问后台 |
+| `license.key` | - | 授权许可证密钥（也可通过管理后台在线激活） |
 | `license.service_api` | `https://huohuastudio.com` | 授权验证服务地址（通常无需修改） |
+| `plugin.dir` | `data/plugins` | 插件存储目录 |
+| `plugin.marketplace_url` | - | 自定义插件市场索引地址（默认使用官方源） |
 | `theme.dir` | `data/themes` | 主题存储目录 |
 | `theme.marketplace_url` | - | 自定义主题市场索引地址（默认使用官方源） |
 | `ha.enabled` | `false` | 高可用模式，启用后支持多实例部署（需使用 MySQL 或 PostgreSQL） |
 | `demo.enabled` | `false` | 演示模式（定期重置数据） |
 | `demo.reset_interval` | `1h` | 演示模式数据重置间隔 |
+| `demo.bypass_key` | - | 演示模式旁路密钥，URL 带此密钥可解锁受限操作 |
 
 ## MySQL DSN 格式 {#mysql-dsn}
 
@@ -117,5 +123,5 @@ database:
 > 5. 设置 `server.allowed_origins` 为具体域名（不使用 `*`）
 > 6. 确保 `demo.enabled: false`
 > 7. 使用 Nginx 或 Caddy 配置反向代理和 TLS
-> 8. 配置 SMTP 邮件（通过管理后台系统设置）
+> 8. 配置邮件服务（通过管理后台系统设置，支持 SMTP、Mailgun、Resend）
 > 9. 配置支付渠道（通过管理后台系统设置）

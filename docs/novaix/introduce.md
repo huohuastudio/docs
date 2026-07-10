@@ -23,7 +23,7 @@ Novaix 采用 Freemium 模式——部署即用，无需注册账号。免费版
 - **用户自助面板**：用户可自助开通、续费、升级实例，管理快照和 SSH 密钥
 - **完善的计费系统**：套餐管理、订单管理、优惠券、流量包、多周期计费（月/季/年/按小时）
 - **多支付渠道**：支持支付宝、微信支付、Stripe、PayPal、易支付（页面跳转/MAPI 出码）
-- **IP 池管理**：按节点管理 IP 段，自动分配，支持额外 IP 购买
+- **IP 池管理**：按网络名称管理 IP 段，创建实例时按套餐网络自动匹配分配，支持额外 IP 购买
 - **资源监控**：实时采集 CPU、内存、磁盘、网络数据，支持阈值告警
 - **多渠道通知**：邮件（SMTP/Mailgun/Resend）+ 告警推送（Telegram/钉钉/企业微信/Webhook）
 - **短信服务**：支持阿里云、腾讯云、通用 HTTP 短信渠道，手机号注册登录
@@ -32,12 +32,12 @@ Novaix 采用 Freemium 模式——部署即用，无需注册账号。免费版
 - **实名认证**：支持二要素验证和人脸识别（H5 活体检测）两种模式，内置阿里云、腾讯云渠道
 - **社会化登录**：内置 GitHub、Google、微信、通用 OIDC，支持插件扩展
 - **人机验证**：插件化验证码系统，支持极验、reCAPTCHA、hCaptcha、Turnstile 等
-- **ISO 管理**：上传 ISO 镜像，用户可挂载到实例虚拟光驱
+- **ISO 管理**：登记并管理 ISO 文件，用户可挂载到实例虚拟光驱
 - **反向 DNS**：通过 PowerDNS API 管理 IP 的 PTR 记录
 - **邮件模板**：可自定义通知邮件的主题和内容，支持预览和测试发送
 - **对象存储**：S3 兼容存储，镜像/ISO 远程归档与掉盘恢复
-- **插件系统**：支持支付、短信、通知、验证码、社会化登录、实名认证六种插件类型
-- **在线更新**：一键升级，支持迁移失败自动回滚与 crash recovery
+- **插件系统**：支持支付、短信、邮件、通知、验证码、社会化登录、实名认证七种插件类型
+- **在线更新**：一键升级，SQLite 支持迁移失败自动回滚，MySQL/PostgreSQL 迁移后需人工处理，支持 crash recovery
 
 ## 为什么选择 Novaix {#why-novaix}
 
@@ -76,7 +76,7 @@ graph TB
     end
 
     subgraph db["数据存储"]
-        sqlite["SQLite / MySQL"]
+        sqlite["SQLite / MySQL / PostgreSQL"]
     end
 
     subgraph nodes["计算节点集群"]
@@ -108,7 +108,7 @@ graph LR
     service --> repo["Repo<br/>数据库操作"]
     service --> client["节点 API 客户端"]
     service --> task["异步任务<br/>创建实例 · 重装等"]
-    repo --> db["SQLite / MySQL"]
+    repo --> db["SQLite / MySQL / PostgreSQL"]
     client --> node["计算节点"]
 
     style mw fill:#f0f4ff,stroke:#4a6cf7

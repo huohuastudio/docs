@@ -74,7 +74,7 @@ data/themes/
     "name": "作者名",
     "url": "https://github.com/example"
   },
-  "requires": "~0.2.5",
+  "requires": "~0.2.8",
   "homepage": "https://github.com/example/novaix-theme-dark"
 }
 ```
@@ -86,7 +86,7 @@ data/themes/
 | `version` | 是 | 语义化版本号（如 `1.0.0`） |
 | `description` | 否 | 主题简短描述 |
 | `author` | 否 | 作者信息，包含 `name`、`email`、`url` |
-| `requires` | 是 | Novaix 版本兼容约束（如 `~0.2.5` 表示兼容 0.2.x），不满足时主题无法加载 |
+| `requires` | 是 | Novaix 版本兼容约束（如 `~0.2.8` 表示兼容 0.2.x），不满足时主题无法加载 |
 | `homepage` | 否 | 主题项目主页 URL |
 
 ### 预览图 {#screenshot}
@@ -134,7 +134,7 @@ cat > my-theme/theme.json << 'EOF'
   "name": "我的主题",
   "version": "1.0.0",
   "author": {"name": "你的名字"},
-  "requires": "~0.2.5"
+  "requires": "~0.2.8"
 }
 EOF
 
@@ -153,9 +153,9 @@ cd my-theme && zip -r ../my-theme.zip . && cd ..
 
 | 约束 | 含义 | 示例 |
 |------|------|------|
-| `~0.2.5` | 兼容 0.2.x（patch 更新） | 匹配 0.2.5、0.2.6，不匹配 0.3.0 |
-| `^0.2.5` | 兼容 0.x.x（minor 更新） | 匹配 0.2.5、0.3.0，不匹配 1.0.0 |
-| `>=0.2.5` | 大于等于指定版本 | 匹配所有 ≥0.2.5 的版本 |
+| `~0.2.8` | 兼容 0.2.x（patch 更新） | 匹配 0.2.8、0.2.9，不匹配 0.3.0 |
+| `^0.2.8` | 兼容 0.2.x（minor 受限） | 匹配 0.2.8、0.2.9，不匹配 0.3.0 |
+| `>=0.2.8` | 大于等于指定版本 | 匹配所有 ≥0.2.8 的版本 |
 
 ::: warning
 建议使用 `~` 约束（tilde），仅允许 patch 版本更新。前端与后端 API 强耦合，minor 版本升级可能引入新的 API 接口或变更响应格式，导致旧主题不兼容。
