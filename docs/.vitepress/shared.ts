@@ -1,5 +1,6 @@
 import { defineConfig } from 'vitepress'
 import { withMermaid } from 'vitepress-plugin-mermaid'
+import { PRODUCTS } from './products'
 
 export const shared = withMermaid(
   defineConfig({
@@ -12,6 +13,13 @@ export const shared = withMermaid(
     cleanUrls: true,
     metaChunk: true,
     ignoreDeadLinks: true,
+
+    transformPageData(pageData) {
+      const product = PRODUCTS.find(p => pageData.relativePath.startsWith(p.key + '/'))
+      if (product) {
+        pageData.titleTemplate = `:title - ${product.name}`
+      }
+    },
 
     vite: {
       optimizeDeps: {
