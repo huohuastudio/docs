@@ -64,7 +64,7 @@ sequenceDiagram
 
 ## 已支持的财务系统 {#modules}
 
-### WHMCS {#whmcs}
+### WHMCS <Badge type="warning" text="已停止维护" /> {#whmcs}
 
 将模块文件复制到 WHMCS 安装目录：
 
@@ -217,7 +217,7 @@ sequenceDiagram
 上游供应商模式无需手动填写套餐 ID 和镜像 ID，商品从 Novaix 自动同步，适合代理转售场景。服务器模式（下方）适合自营站点直接管理。
 :::
 
-### 智简魔方 V10 — 服务器模式 {#mofang-v10}
+### 智简魔方 V10 — 服务器模式 <Badge type="warning" text="已停止维护" /> {#mofang-v10}
 
 将模块文件复制到魔方 V10 的通用产品子模块目录：
 
@@ -238,7 +238,7 @@ public/plugins/server/idcsmart_common/module/novaix/
 
 创建商品时关联该服务器，在模块配置中填写套餐 ID、镜像 ID 和可选节点 ID。
 
-### 智简魔方财务 2.x {#mofang-legacy}
+### 智简魔方财务 2.x <Badge type="warning" text="已停止维护" /> {#mofang-legacy}
 
 适用于魔方财务 2.x 版本（非 V10），将模块文件复制到：
 
