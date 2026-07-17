@@ -45,9 +45,52 @@
 | 启动模式 | UEFI 或 BIOS（仅虚拟机） |
 | 磁盘模式 | 磁盘驱动类型（仅虚拟机） |
 | CPU 模式 | CPU 模拟模式（仅虚拟机） |
+| TPM 2.0 | 启用虚拟 TPM 设备（仅虚拟机，Windows 11 和 Windows Server 2025 需要） |
 
 ::: warning
 运行模式需要与镜像的实际格式匹配。容器镜像不能以虚拟机模式运行，反之亦然。如果选择了错误的运行模式，实例创建将会失败。
+:::
+
+## Windows 镜像 {#windows}
+
+Novaix 支持创建 Windows 虚拟机。由于 Windows 镜像无法从公共 Linux 镜像仓库获取，您需要自行准备镜像。
+
+### 准备 Windows 镜像
+
+推荐两种方式：
+
+**方式一：上传预构建 qcow2 镜像（推荐）**
+
+提前在本地构建好包含 VirtIO 驱动的 Windows qcow2 镜像，通过「上传镜像」功能导入 Novaix，分发到节点后即可用于创建实例。
+
+**方式二：从 ISO 安装**
+
+1. 在管理面板创建一台空盘虚拟机（镜像源类型选择「空盘」）
+2. 上传 Windows 安装 ISO 和 [VirtIO 驱动 ISO](https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/latest-virtio/virtio-win.iso) 到 ISO 管理
+3. 在实例详情页同时挂载两个 ISO（系统 ISO + 驱动 ISO）
+4. 通过控制台（VNC）完成 Windows 安装，安装时加载 VirtIO 存储驱动
+
+::: tip
+您也可以使用 [distrobuilder](https://github.com/lxc/distrobuilder) 的 `repack-windows` 命令预先将 VirtIO 驱动注入到 Windows ISO 中，这样只需挂载一个 ISO 即可完成安装。
+:::
+
+### 推荐配置
+
+创建 Windows 镜像时，建议按如下方式配置：
+
+| 字段 | 推荐值 | 说明 |
+|------|--------|------|
+| 操作系统 | Windows 或 Windows Server | |
+| 默认用户 | Administrator | Windows 默认管理员账户 |
+| Cloud-Init | 关闭 | Windows 不支持 cloud-init |
+| 启动模式 | UEFI 或 UEFI 安全启动 | |
+| TPM 2.0 | 启用 | Windows 11 和 Windows Server 2025 必须 |
+| 磁盘模式 | 默认（virtio-scsi） | 需镜像内已安装 VirtIO 驱动 |
+| 最小磁盘 | 40 GB | Windows 系统盘建议不低于 40 GB |
+| 最小内存 | 2048 MB | |
+
+::: warning
+关闭 Cloud-Init 后，系统不会自动注入密码和 SSH 密钥。用户购买 Windows 实例时，购买页面会提示需要在安装过程中手动设置密码。
 :::
 
 ## 开机脚本 {#boot-script}
