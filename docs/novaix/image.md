@@ -89,8 +89,14 @@ Novaix 支持创建 Windows 虚拟机。由于 Windows 镜像无法从公共 Lin
 | 最小磁盘 | 40 GB | Windows 系统盘建议不低于 40 GB |
 | 最小内存 | 2048 MB | |
 
+::: tip 虚拟机代理
+Windows 镜像需预装 [incus-agent](https://github.com/lxc/incus) 客户端工具。安装后，系统可通过虚拟机代理在实例运行期间直接执行密码重置和网络配置，无需依赖 cloud-init。
+
+如果镜像未安装 incus-agent，密码重置和网络变更操作将无法自动在实例内生效，用户需通过 VNC 控制台手动操作。
+:::
+
 ::: warning
-关闭 Cloud-Init 后，系统不会自动注入密码和 SSH 密钥。用户购买 Windows 实例时，购买页面会提示需要在安装过程中手动设置密码。
+关闭 Cloud-Init 后，系统不会自动注入密码和 SSH 密钥。用户购买 Windows 实例时，购买页面会提示需要在安装过程中手动设置密码。首次密码可在安装过程中设置，后续可通过面板的「重置密码」功能远程修改（需实例处于运行状态且已安装虚拟机代理）。
 :::
 
 ## 开机脚本 {#boot-script}
