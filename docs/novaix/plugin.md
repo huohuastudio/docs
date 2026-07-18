@@ -184,7 +184,7 @@ Novaix 自带以下官方插件，会随版本升级自动更新：
 | `when` | object | 条件显示，见[条件显示](#when) |
 | `readonly` | boolean | 只读字段，不可编辑，保存时跳过 |
 | `copyable` | boolean | 显示复制按钮，方便复制字段值 |
-| `computed` | string | 值模板，前端自动解析变量。支持 `{{baseURL}}`（站点 URL）和 `{{pluginID}}`（插件 ID） |
+| `computed` | string | 值模板，前端自动解析变量。支持 <code v-pre>{{baseURL}}</code>（站点 URL）和 <code v-pre>{{pluginID}}</code>（插件 ID） |
 | `validation` | object | 字段校验规则，见[字段校验](#validation) |
 
 ### 字段校验 {#validation}
@@ -334,7 +334,11 @@ Novaix 自带以下官方插件，会随版本升级自动更新：
 }
 ```
 
+<span v-pre>
+
 `computed` 模板中的 `{{baseURL}}` 会替换为系统设置的站点 URL，`{{pluginID}}` 替换为当前插件 ID。配合 `readonly` 和 `copyable`，管理员可以直接复制该地址，无需手动拼接。
+
+</span>
 
 **示例：分组折叠**
 
