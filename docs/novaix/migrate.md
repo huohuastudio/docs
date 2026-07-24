@@ -14,6 +14,14 @@
 如果您不确定当前使用的数据库类型，可以查看工作目录下的 `config.yaml` 中的 `database.driver` 配置项。未配置或值为 `sqlite` 则表示使用的是 SQLite。
 :::
 
+开始迁移前，先停止旧服务器上的 Novaix 服务，避免迁移期间产生新数据：
+
+```bash
+supervisorctl stop novaix
+# 或
+systemctl stop novaix
+```
+
 ## 迁移数据库 {#migrate-database}
 
 ### SQLite（默认） {#migrate-sqlite}
@@ -21,10 +29,6 @@
 SQLite 数据库是工作目录下的一个文件，直接复制即可：
 
 ```bash
-# 在旧服务器上停止服务
-supervisorctl stop novaix
-
-# 将数据库文件复制到新服务器
 scp /opt/novaix/novaix.db root@新服务器IP:/opt/novaix/
 ```
 
@@ -113,7 +117,6 @@ systemctl start novaix
 一切正常后，即可将域名 DNS 解析指向新服务器，并关闭旧服务器上的 Novaix 服务。
 
 ::: warning
-- 迁移过程中旧服务器的 Novaix 应保持**停止状态**，避免迁移期间产生新数据导致不一致
 - 建议在低峰期进行迁移操作
 - 迁移完成后，建议保留旧服务器的数据至少一周，确认无误后再清理
 :::
