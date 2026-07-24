@@ -101,6 +101,7 @@ function sidebarNovaix(): DefaultTheme.SidebarItem[] {
         { text: '安装', link: 'install' },
         { text: '升级', link: 'upgrade' },
         { text: '备份与恢复', link: 'backup' },
+        { text: '迁移', link: 'migrate' },
       ],
     },
     {
