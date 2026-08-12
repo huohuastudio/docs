@@ -628,3 +628,27 @@ database:
 授权到期后，授权版独有的功能（如 VPC、代理系统、共享 IP 等）会被禁用，但核心功能（创建实例、管理节点等）仍可正常使用。续费授权后功能立即恢复。
 
 如果授权服务暂时不可达（如网络波动），系统会保持当前状态不受影响，直到下次验证成功或确认授权失效。系统每 8 小时自动刷新授权状态，无需手动操作。
+
+## 创建虚拟机失败，提示节点不支持虚拟机？ {#vm-not-supported}
+
+Novaix 在节点同步时会检测虚拟机（QEMU）支持状态。如果提示「该节点不支持虚拟机」，通常是以下原因：
+
+1. **QEMU 未安装**：节点服务器上没有安装 QEMU。正常情况下初始化节点时会自动安装，如果安装失败请手动安装。
+2. **QEMU 安装后未重启服务**：QEMU 安装后需要重启运行环境才能检测到虚拟机能力。重新初始化节点或手动在节点上执行 `systemctl restart incus`（OpenRC 使用 `rc-service incus restart`），然后在 Novaix 中同步节点即可。
+3. **硬件不支持**：节点服务器 CPU 不支持硬件虚拟化（缺少 `/dev/kvm`），或运行在不支持嵌套虚拟化的虚拟机中。
+
+排查步骤：
+
+```bash
+# 检查 QEMU 是否安装
+command -v qemu-system-x86_64 || command -v qemu-system-aarch64
+
+# 检查运行环境是否识别到虚拟机 driver
+incus query /1.0 | grep driver
+# 正常输出应包含 "lxc | qemu"
+
+# 如果 driver 中没有 qemu，重启服务后重试
+systemctl restart incus
+```
+
+确认节点环境正常后，在 Novaix 管理面板中对该节点执行「同步资源」，系统会重新检测虚拟机支持状态。
