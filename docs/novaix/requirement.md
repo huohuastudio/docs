@@ -39,7 +39,7 @@ Novaix 本身仅监听 HTTP，生产环境中您需要配置反向代理来处�
 
 Novaix 通过连接节点服务器来管理虚拟机和容器。添加节点后，通过「初始化」功能即可自动完成运行环境的安装和配置。每个节点服务器需要：
 
-- 支持的操作系统：Ubuntu 20.04+、Debian 11+、CentOS/RHEL 9+、Fedora 38+ 等
+- 支持的操作系统：Ubuntu 22.04+、Debian 11+、CentOS/RHEL 9+、Fedora 39+、openSUSE Leap 15.6+ 等
 - SSH 连接正常（用于自动初始化）
 - 如启用监控采集，建议安装 [Node Exporter](https://github.com/prometheus/node_exporter)（默认端口 9100）
 
