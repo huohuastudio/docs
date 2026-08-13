@@ -652,3 +652,37 @@ systemctl restart incus
 ```
 
 确认节点环境正常后，在 Novaix 管理面板中对该节点执行「同步资源」，系统会重新检测虚拟机支持状态。
+
+## 虚拟机创建/重装特别慢？ {#slow-vm-creation}
+
+虚拟机的创建和重装速度与节点的存储后端密切相关。Novaix 初始化节点时会自动按优先级选择存储后端：ZFS > btrfs > LVM > dir。
+
+如果您的节点使用的是 `dir` 存储后端，虚拟机操作会非常慢（每次创建/重装都要写入完整磁盘大小的裸文件）。可以通过以下命令确认：
+
+```bash
+incus storage list
+```
+
+如果输出中 DRIVER 列显示 `dir`，建议迁移到 ZFS：
+
+```bash
+# 安装 ZFS
+apt install -y zfsutils-linux
+
+# 创建 ZFS 存储池
+incus storage create zfs-pool zfs
+
+# 停止所有实例
+incus stop --all
+
+# 逐个迁移实例到新存储池
+incus move <实例名> --storage zfs-pool
+
+# 修改 default profile 使用新存储池
+incus profile device set default root pool=zfs-pool
+
+# 启动所有实例
+incus start --all
+```
+
+迁移完成后在 Novaix 后台同步节点即可。使用 ZFS 后创建和重装速度会从数分钟缩短到数秒。
