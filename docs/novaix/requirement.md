@@ -41,7 +41,7 @@ Novaix 通过连接节点服务器来管理虚拟机和容器。添加节点后�
 
 - 支持的操作系统：Ubuntu 22.04+、Debian 11+、CentOS/RHEL 9+、Fedora 39+、openSUSE Leap 15.6+ 等
 - SSH 连接正常（用于自动初始化）
-- 如启用监控采集，建议安装 [Node Exporter](https://github.com/prometheus/node_exporter)（默认端口 9100）
+- systemd 系统初始化时会自动安装监控采集程序（Node Exporter）；非 systemd 系统需[手动安装](https://github.com/prometheus/node_exporter)
 
 ### 推荐操作系统 {#recommended-os}
 

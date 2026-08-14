@@ -11,7 +11,7 @@ Novaix 会定期采集节点和实例的资源使用数据，包括：
 - **磁盘使用量**
 - **网络流量**（入站/出站）
 
-节点层面的监控需要节点服务器安装 [Node Exporter](https://github.com/prometheus/node_exporter)，Novaix 通过 Node Exporter 的接口采集数据。实例层面的监控数据直接从运行环境的 API 获取，无需额外安装。
+使用 systemd 的节点在初始化时会自动安装监控采集程序（Node Exporter），Novaix 通过该程序采集节点层面的数据。非 systemd 系统需手动安装，详见[节点管理 — 监控数据](./node#monitoring)。如需更换监控端口，可在节点编辑页面修改「监控端口」（默认 9100）。实例层面的监控数据直接从运行环境的 API 获取，无需额外安装。
 
 ### 采集配置 {#collector-config}
 
