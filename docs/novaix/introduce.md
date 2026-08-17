@@ -4,7 +4,7 @@ Novaix 是一款面向中小 VPS 服务商的 IDC 管理系统，使用 Go 语�
 
 程序的设计目标是让中小服务商能够快速搭建起一套功能完备的虚拟机/容器销售与管理平台，涵盖了从基础设施管理到用户自助服务的完整链路。无论您是刚起步的个人服务商还是有一定规模的团队，Novaix 都能帮您快速上线业务。
 
-Novaix 采用 Freemium 模式——部署即用，无需注册账号。免费版包含完整的核心功能，[授权版](./getting-started#editions)解锁不限节点数、品牌定制、外部集成等高级能力。
+Novaix 采用 Freemium 模式——部署即用，无需注册账号。免费版包含完整的核心功能，[授权版](./getting-started#editions)解锁不限节点数、品牌定制、开放接口等高级能力。
 
 <div class="tip custom-block" style="padding-top: 8px">
 

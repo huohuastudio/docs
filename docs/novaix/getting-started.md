@@ -43,7 +43,7 @@ Novaix 采用 Freemium 模式，部署即可使用免费版，无需注册账号
 | 共享 IP / NAT | — | ✓ |
 | 插件系统 | — | ✓ |
 | 品牌定制（团队成员、品牌素材） | — | ✓ |
-| 第三方集成（Provisioning API） | — | ✓ |
+| 开放接口（Provisioning API） | — | ✓ |
 
 ## 激活授权版 {#license}
 

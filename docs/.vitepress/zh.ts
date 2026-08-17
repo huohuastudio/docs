@@ -164,7 +164,7 @@ function sidebarNovaix(): DefaultTheme.SidebarItem[] {
       items: [
         { text: '插件系统', link: 'plugin' },
         { text: '主题系统', link: 'theme' },
-        { text: '第三方集成', link: 'integration' },
+        { text: '开放接口', link: 'integration' },
       ],
     },
     {
