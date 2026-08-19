@@ -108,6 +108,7 @@ function sidebarNovaix(): DefaultTheme.SidebarItem[] {
       text: '基础设施',
       collapsed: false,
       items: [
+        { text: '区域管理', link: 'region' },
         { text: '节点管理', link: 'node' },
         { text: '节点组管理', link: 'node-group' },
         { text: '镜像管理', link: 'image' },
