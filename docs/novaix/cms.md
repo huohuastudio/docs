@@ -19,7 +19,7 @@ Novaix 内置了完整的 CMS 内容管理模块，为第三方主题提供动�
 | 轮播图 | 首页及各位置横幅 | `GET /api/v1/public/cms/banners?location=home` |
 | 合作伙伴 | Logo 与信息展示 | `GET /api/v1/public/cms/partners` |
 | 客户评价 | 用户推荐与评价 | `GET /api/v1/public/cms/testimonials` |
-| 数据中心 | 机房信息与测试 IP | `GET /api/v1/public/cms/data-centers` |
+| 数据中心 | 机房信息与测试 IP | `GET /api/v1/public/cms/regions` |
 | 友情链接 | 外部链接，支持分组 | `GET /api/v1/public/cms/links` |
 | 更新日志 | 产品版本更新记录 | `GET /api/v1/public/cms/changelogs` |
 | 团队成员 | 团队成员展示 | `GET /api/v1/public/cms/team-members` |
@@ -67,7 +67,9 @@ FAQ 支持按 `group_name` 分组（如「售前」「售后」「技术」）�
 
 ## 数据中心 {#data-centers}
 
-数据中心信息包含名称、城市、国家、描述、测试 IP 和特性标签（JSON 数组）。主题可在选购页或独立页面展示机房信息。
+数据中心展示数据来自「区域管理」模块（管理后台侧边栏「资源管理 → 区域管理」），区域中勾选了「公开展示」的记录会在前台展示。每个区域包含显示名称、城市、国家、描述、测试 IP、国旗、线路信息和特性标签等字段。
+
+旧接口 `/api/v1/public/cms/data-centers` 仍可用，与 `/api/v1/public/cms/regions` 返回相同数据。
 
 ## 图片上传 {#upload}
 
@@ -94,7 +96,7 @@ CMS 提供通用文件上传接口 `POST /api/v1/admin/upload`，支持 JPG、PN
 
 - **轮播图**：`location` 为 `homepage` 的轮播图作为全屏 Hero 背景（与聚合接口读取的 location 一致），导航栏自动切换为沉浸式透明模式；无轮播图时使用默认布局
 - **客户评价**：星级评分卡片
-- **数据中心**：前 6 个数据中心预览
+- **数据中心**：前 6 个区域预览（来自区域管理中勾选了「公开展示」的区域）
 - **常见问题**：来自 CMS FAQ 模块
 
 所有公共页面共享 PublicLayout 布局，header 和 footer 的导航链接来自 CMS 导航菜单模块（`location` 为 `header` 或 `footer`），友情链接和合作伙伴 Logo 也在 footer 中展示。
