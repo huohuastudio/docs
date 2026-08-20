@@ -44,8 +44,21 @@ Novaix 集成了多种支付渠道，支持国内和国际用户的支付需求�
 | Secret Key | Stripe 密钥（以 `sk_` 开头） |
 | Webhook Secret | Webhook 签名密钥（以 `whsec_` 开头） |
 
+#### Webhook 配置 {#stripe-webhook}
+
+在 [Stripe Dashboard](https://dashboard.stripe.com/webhooks) 中添加 Webhook 端点：
+
+1. 点击「添加端点」
+2. 端点 URL 填写：`https://您的域名/api/callbacks/stripe`
+3. 选择监听事件：`checkout.session.completed`
+4. 创建后复制端点的「签名密钥」（以 `whsec_` 开头），填入 Novaix 的「Webhook Secret」字段
+
 ::: tip
-您需要在 Stripe Dashboard 中配置 Webhook 端点，地址为 `https://您的域名/api/callbacks/stripe`，事件类型选择 `checkout.session.completed` 和 `checkout.session.async_payment_succeeded`。
+如果您的业务涉及银行转账等异步支付方式，还需额外添加 `checkout.session.async_payment_succeeded` 事件。普通信用卡/借记卡支付只需 `checkout.session.completed` 即可。
+:::
+
+::: warning 最低金额限制
+Stripe 对每笔交易有最低金额要求，具体取决于结算货币（如 USD 最低 $0.50、GBP 最低 £0.30）。跨币种支付时，Stripe 会按结算货币的最低额校验。如果充值金额低于最低限制，Stripe 会拒绝创建支付会话。请避免设置过低的套餐价格或充值金额。详见 [Stripe 最低金额说明](https://docs.stripe.com/currencies#minimum-and-maximum-charge-amounts)。
 :::
 
 ### PayPal {#paypal}
