@@ -327,6 +327,14 @@ Novaix 服务本身的配置只需关注 `server.external_url` 设置为 `https:
 2. 确认反向代理没有额外添加 CORS 头（与 Novaix 自带的冲突会导致浏览器报错）
 3. 如果使用 Caddy，默认行为通常不需要额外配置
 
+## 浏览器控制台报 Content Security Policy 错误？ {#csp-error}
+
+系统内置了 CSP（内容安全策略）来防御 XSS 攻击，默认只允许加载自身域名的资源。如果您使用了 Cloudflare Web Analytics、第三方客服、统计等服务，这些外部脚本会被浏览器拦截。
+
+解决方法：在后台「系统设置」→「高级设置」→「CSP 额外白名单」中，将第三方服务的域名添加到对应的指令白名单中。例如使用 Cloudflare Web Analytics 时，在 `script-src` 和 `connect-src` 中添加 `https://static.cloudflareinsights.com`。
+
+如果使用了极验验证码插件，系统会自动处理其所需的 CSP 配置，无需手动添加。
+
 ## 反向代理需要怎么配置 `trusted_proxies`？ {#trusted-proxies}
 
 当 Novaix 部署在反向代理后面时，需要配置 `server.trusted_proxies` 以正确获取客户端真实 IP：

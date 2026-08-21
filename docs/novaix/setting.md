@@ -126,6 +126,7 @@ S3 兼容对象存储配置，用于镜像和 ISO 文件的远程归档与恢复
 | API 文档 | 启用后可通过 `/docs` 访问 Scalar API 文档（OpenAPI） |
 | 更新镜像地址 | 系统在线更新时的下载加速镜像（国内服务器建议配置，留空则直接从 GitHub 下载） |
 | 更新通道 | 更新版本通道，`stable`（稳定版）或 `dev`（开发版） |
+| CSP 额外白名单 | 按指令类型（script-src、connect-src、img-src、frame-src、style-src）配置额外的域名白名单。如果使用了 Cloudflare Web Analytics、第三方客服、统计等服务，需要将其域名添加到对应指令中，否则浏览器会拦截这些外部资源。每行一个域名，格式为 `https://域名` |
 
 ## 发票设置 {#invoice}
 
