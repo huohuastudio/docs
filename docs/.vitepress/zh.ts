@@ -134,6 +134,7 @@ function sidebarNovaix(): DefaultTheme.SidebarItem[] {
         { text: '支付配置', link: 'payment' },
         { text: '优惠券', link: 'coupon' },
         { text: '发票管理', link: 'invoice' },
+        { text: '实例转移', link: 'push-transfer' },
         { text: '代理系统', link: 'agent' },
       ],
     },
