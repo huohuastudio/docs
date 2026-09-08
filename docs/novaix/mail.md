@@ -29,6 +29,8 @@ Novaix 使用邮件发送通知，包括工单回复通知、密码重置验证�
 - **Gmail**：`smtp.gmail.com`，端口 587，需要使用[应用专用密码](https://support.google.com/accounts/answer/185833)
 - **阿里云企业邮箱**：`smtp.qiye.aliyun.com`，端口 465
 - **腾讯企业邮箱**：`smtp.exmail.qq.com`，端口 465
+
+系统自动检测 SMTP 服务器支持的认证方式（PLAIN 和 LOGIN），无需手动选择。
 :::
 
 ## Mailgun {#mailgun}
