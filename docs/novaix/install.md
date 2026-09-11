@@ -132,7 +132,7 @@ admin:
 3. 提交后，点击刚创建的反向代理右侧的 **配置文件**，将内容替换为：
 
 ```nginx
-location / {
+location ^~ / {
     proxy_pass http://127.0.0.1:8080;
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
@@ -151,6 +151,8 @@ location / {
 
 ::: warning
 必须手动编辑反向代理配置文件添加 WebSocket 支持，宝塔默认生成的反向代理配置不包含 `Upgrade` 和 `Connection` 头的转发，会导致实例终端、控制台、任务日志等功能无法正常使用。
+
+注意 `location ^~ /` 中的 `^~` 修饰符是必须的，它确保所有请求优先走反向代理，避免被宝塔自动生成的其他 Nginx 规则拦截导致部分 API 返回 404。
 :::
 
 ### 方式二：Supervisor（手动安装） {#supervisor}
@@ -261,7 +263,7 @@ server {
     listen 80;
     server_name panel.example.com;
 
-    location / {
+    location ^~ / {
         proxy_pass http://127.0.0.1:8080;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
