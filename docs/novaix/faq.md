@@ -335,7 +335,7 @@ Novaix 服务本身的配置只需关注 `server.external_url` 设置为 `https:
 
 解决方法：在后台「系统设置」→「高级设置」→「CSP 额外白名单」中，将第三方服务的域名添加到对应的指令白名单中。例如使用 Cloudflare Web Analytics 时，在 `script-src` 和 `connect-src` 中添加 `https://static.cloudflareinsights.com`。
 
-如果使用了极验验证码插件，系统会自动处理其所需的 CSP 配置，无需手动添加。
+如果使用了极验或 Cloudflare Turnstile 验证码插件，系统会自动处理其所需的 CSP 配置，无需手动添加。
 
 ## 反向代理需要怎么配置 `trusted_proxies`？ {#trusted-proxies}
 

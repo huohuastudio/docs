@@ -1,6 +1,6 @@
 # 插件系统 {#plugin}
 
-Novaix 支持通过 JavaScript 插件扩展系统功能。您可以编写插件来对接自定义的支付渠道、人机验证服务、身份认证平台、短信服务、邮件服务和通知渠道，无需修改系统源代码。
+Novaix 支持通过 JavaScript 插件扩展系统功能。您可以编写插件来对接自定义的支付渠道、人机验证服务、身份认证平台、短信服务、邮件服务、通知渠道和外部消息机器人，无需修改系统源代码。
 
 ## 插件类型 {#types}
 
@@ -13,6 +13,7 @@ Novaix 支持通过 JavaScript 插件扩展系统功能。您可以编写插件�
 | `sms` | 短信服务 | `send` | 自定义短信平台 |
 | `mail` | 邮件服务 | `send` | 自定义邮件发送 API |
 | `notify` | 通知渠道 | `send` | 自定义推送服务 |
+| `extension` | 扩展插件 | `onWebhook`、`onSchedule`、`onEvent`（按声明导出） | Telegram 机器人、外部系统同步等 |
 
 ## 插件生命周期 {#lifecycle}
 
@@ -115,9 +116,11 @@ Novaix 自带以下官方插件，会随版本升级自动更新：
 
 - **易支付**（epay）— 支付渠道，兼容彩虹易支付 / ZPAY 等通用规范
 - **极验行为验证**（geetest）— 人机验证，支持滑动、点选、无感三种模式
+- **Cloudflare Turnstile**（cloudflare-turnstile）— 人机验证，免费使用，多数访客无需交互即可通过
 - **彩虹聚合登录**（clogin）— 社会化登录，支持 QQ、微信、支付宝等
 - **短信宝**（smsbao）— 短信服务，低价短信验证码
 - **PushPlus**（pushplus）— 通知渠道，通过微信公众号推送通知
+- **Telegram 机器人**（telegram-bot）— 扩展插件，用户绑定后可在 Telegram 中查询服务器、执行电源操作并接收任务通知
 
 如果您需要自定义官方插件的行为，请复制为新的插件 ID（如 `my-epay`），不要直接修改 `data/plugins/` 下的官方插件文件，否则升级时会被覆盖。
 :::
@@ -157,10 +160,11 @@ Novaix 自带以下官方插件，会随版本升级自动更新：
 | `version` | 否 | 语义化版本号 |
 | `description` | 否 | 插件简短描述 |
 | `author` | 否 | 作者信息，包含 `name`、`email`、`url` |
-| `type` | 是 | 插件类型：`payment`、`captcha`、`oauth`、`kyc`、`sms`、`mail`、`notify` |
+| `type` | 是 | 插件类型：`payment`、`captcha`、`oauth`、`kyc`、`sms`、`mail`、`notify`、`extension` |
 | `requires` | 否 | Novaix 版本兼容约束（如 `>=0.2.0`），不满足时插件不会加载。兼容旧字段名 `novaix` |
 | `config` | 否 | 配置字段数组，定义管理员需要填写的配置项 |
 | `frontend` | 否 | 前端元数据（仅 `captcha` 类型使用），见[人机验证插件](#captcha) |
+| `extension` | 否 | 扩展入口与权限声明（仅 `extension` 类型使用），见[扩展插件](#extension) |
 
 ### 配置字段 {#config-fields}
 
@@ -414,6 +418,8 @@ HTTP 请求内置 SSRF 防护：禁止访问内网地址（`127.0.0.0/8`、`10.0
 | `crypto.sha256` | `(str) → string` | SHA-256 哈希 |
 | `crypto.hmacMD5` | `(key, data) → string` | HMAC-MD5 签名 |
 | `crypto.hmacSHA256` | `(key, data) → string` | HMAC-SHA256 签名 |
+| `crypto.randomHex` | `(bytes) → string` | 生成指定字节数（1～64）的随机十六进制字符串，适合生成一次性凭证 |
+| `crypto.constantTimeEqual` | `(a, b) → boolean` | 常量时间比较两个字符串，用于校验签名，避免时序攻击 |
 
 ```js
 var sign = crypto.hmacSHA256(config.secret_key, "data-to-sign");
@@ -830,6 +836,172 @@ KYC 插件支持两种模式：二要素验证（`verify`）和人脸识别（`i
 | `body` | string | 通知正文 |
 
 无返回值。发送失败请 `throw new Error("错误信息")`。
+
+### 扩展插件 (extension) {#extension}
+
+扩展插件用于对接外部平台，例如消息机器人或外部系统同步。与其他类型不同，它不替换系统内的某个渠道，而是通过以下三种入口与系统交互：
+
+- **外部回调**：接收第三方平台推送的消息
+- **定时任务**：按固定间隔执行，例如注册回调地址、主动同步数据
+- **任务事件**：用户的实例任务完成或失败时收到通知
+
+插件还可以在用户授权后，查询和操作该用户的服务器。
+
+::: tip 版本要求
+扩展插件需要 Novaix 0.4.10 及以上版本。实例的 `display_name`、`hostname`、`remark` 和流量字段需要 0.4.11 及以上版本。
+:::
+
+#### manifest.json 额外字段 {#extension-manifest}
+
+```json
+{
+  "id": "message-bridge",
+  "name": "消息桥接",
+  "version": "1.0.0",
+  "type": "extension",
+  "requires": ">=0.4.10",
+  "extension": {
+    "webhook": true,
+    "schedule_seconds": 60,
+    "events": ["task.completed", "task.failed"],
+    "permissions": ["storage", "accounts", "instances:read", "instances:operate"]
+  }
+}
+```
+
+| 字段 | 说明 |
+|------|------|
+| `webhook` | 是否启用外部回调入口，启用后需要导出 `onWebhook` |
+| `schedule_seconds` | 定时任务间隔，范围 30～86400 秒，设置后需要导出 `onSchedule` |
+| `events` | 订阅的任务事件，可选 `task.completed`、`task.failed`，设置后需要导出 `onEvent` |
+| `permissions` | 需要使用的宿主能力，可选 `storage`、`accounts`、`instances:read`、`instances:operate` |
+
+三种入口至少声明一种，未声明的入口不会执行。在 JS 中可以通过 `config._webhook_url` 读取当前插件的回调地址，该地址由「站点 URL」生成，管理员需要先在站点设置中填写可公开访问的地址。
+
+#### onWebhook(request) <Badge type="info" text="按声明导出" /> {#onWebhook}
+
+处理发送到 `/api/v1/extensions/{插件ID}/webhook` 的 GET 或 POST 请求。
+
+**入参 `request`：**
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `method` | string | 请求方法 |
+| `headers` | object | 请求头，键名为小写 |
+| `query` | object | 查询参数，每个值都是数组 |
+| `body` | string | 原始请求正文，最大 1MB |
+
+**返回值：**
+
+```js
+return { status: 200, content_type: "application/json", body: "{}" };
+```
+
+`content_type` 也可以是 `text/plain`，响应正文最大 1MB。不返回内容时按空 JSON 响应处理。插件停用或未声明回调时返回 404，执行出错时返回 503 并附带 `Retry-After: 5`。
+
+::: danger 必须校验签名
+回调地址是公开的，任何人都可以访问。插件**必须校验第三方平台的签名**，并且只能从已通过校验的请求中提取外部用户身份，不能信任请求中任意填写的用户 ID。不要在回调响应中返回密钥或日志。
+:::
+
+#### onSchedule(event) <Badge type="info" text="按声明导出" /> {#onSchedule}
+
+按 `schedule_seconds` 间隔执行，插件启用后会立即执行第一次。`event.time` 为 UTC 时间字符串。
+
+定时任务不保证准确的触发时刻。多进程部署时也不能保证每个周期只执行一次，向外部平台注册、扣费等操作请自行做好幂等处理。
+
+#### onEvent(event) <Badge type="info" text="按声明导出" /> {#onEvent}
+
+已授权用户的实例任务结束时调用。
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `name` | string | 事件名称，如 `task.completed` |
+| `external_id` | string | 用户绑定的外部身份 |
+| `task_id` | number | 任务 ID |
+| `instance_id` | number | 实例 ID |
+| `type` | string | 任务类型 |
+| `status` | string | 任务状态 |
+
+任务事件为实时推送，不会持久化或自动重发。如需可靠同步，请通过定时任务主动查询并保存进度。
+
+#### 宿主能力 {#extension-api}
+
+扩展插件通过 `novaix` 对象使用宿主能力，只能调用 `permissions` 中声明过的方法：
+
+| 权限 | 方法 | 说明 |
+|------|------|------|
+| `storage` | `novaix.storage.get(key)` / `set(key, value)` / `delete(key)` | 插件独立的 JSON 存储。键最长 128 字节，单个值小于 64KB，不存在时返回 `null` |
+| `accounts` | `novaix.accounts.bind(externalID, code)` | 使用用户生成的一次性配对码绑定账号，外部身份为字符串，最长 128 字符 |
+| `accounts` | `novaix.accounts.unbind(externalID)` | 解除绑定，同时撤销未使用的配对码 |
+| `instances:read` | `novaix.instances.list(externalID, page)` | 分页查询用户的实例，返回 `items`、`total`、`page`、`page_size`，每页 20 条 |
+| `instances:read` | `novaix.instances.get(externalID, id)` | 查询用户自己的单个实例 |
+| `instances:operate` | `novaix.instances.action(externalID, id, action)` | 执行 `start`、`stop` 或 `restart`，返回 `task_id`、`status`，仍然经过正常的业务校验和任务队列 |
+
+**实例字段：**
+
+| 字段 | 说明 |
+|------|------|
+| `id` | 实例 ID |
+| `name` | 系统生成的实例名称 |
+| `display_name` | 面向用户的展示名，优先取主机名，未填写主机名时为实例名称 |
+| `hostname` | 用户购买时填写的主机名 |
+| `remark` | 用户设置的备注 |
+| `status` | 实例状态 |
+| `cpu` / `memory` | CPU 核数 / 内存（MB） |
+| `ip_address` / `ipv6_address` | IPv4 / IPv6 地址 |
+| `expire_at` | 到期时间，未设置时为 `null` |
+| `traffic_used` | 本周期已用流量（GB） |
+| `traffic_total` | 本周期可用流量（GB），包含额外购买的流量包，`0` 表示不限 |
+
+返回数据中不包含节点凭据和实例密码。
+
+#### 用户授权 {#extension-binding}
+
+用户需要在用户面板的「个人资料 → 安全设置 → 扩展连接」中确认授权，并生成五分钟内有效的一次性配对码，再按插件的说明把配对码发送给对应服务，由插件调用 `novaix.accounts.bind` 完成绑定。
+
+- 每个插件中，一个用户只能绑定一个外部身份
+- 重新生成配对码会使旧码失效，系统只保存配对码的摘要
+- 授权范围按绑定时的权限保存，插件升级后新增了权限，用户需要重新授权
+- 用户被禁用、插件停用或解除绑定后，插件将无法继续操作该用户的服务器
+
+#### 执行限制 {#extension-limits}
+
+- 每次调用都使用独立的脚本上下文，不能通过全局变量跨请求保存数据，请使用 `novaix.storage`
+- 单次调用最多 15 秒，同一插件的入口按顺序串行执行
+- 停用插件后不再接受新调用，已开始的调用会继续完成。停用会保留绑定和存储数据，卸载会一并清除
+
+#### Telegram 机器人 {#telegram-bot}
+
+Telegram 机器人是官方提供的扩展插件，用户绑定账号后，可以直接在 Telegram 中查看服务器并执行电源操作。
+
+**管理员配置：**
+
+1. 在「系统设置 → 站点设置」中填写可公开访问的 HTTPS「站点 URL」，并确保服务器可以访问 Telegram API
+2. 在 Telegram 中通过 [@BotFather](https://t.me/BotFather) 创建机器人，获取 Bot Token
+3. 在插件管理中安装「Telegram 机器人」，填写 Bot Token 后启用
+
+启用后，插件会自动向 Telegram 注册消息回调地址和指令菜单，无需另外部署服务。
+
+**用户使用：**
+
+1. 在「个人资料 → 安全设置 → 扩展连接」中，为 Telegram 机器人生成配对码
+2. 私聊机器人，发送 `/connect 配对码` 完成绑定
+3. 发送 `/start` 打开按钮菜单，可以分页浏览服务器、查看状态、地址、到期时间和流量，并点选启动、停止或重启
+
+电源操作和解除绑定都需要在一分钟内点击确认按钮，任务完成或失败后机器人会主动发送通知。也可以直接使用以下指令：
+
+| 指令 | 说明 |
+|------|------|
+| `/servers [页码]` | 查看服务器列表 |
+| `/status 实例ID` | 查看服务器详情 |
+| `/startvm 实例ID` | 启动服务器 |
+| `/stop 实例ID` | 停止服务器 |
+| `/restart 实例ID` | 重启服务器 |
+| `/unbind` | 解除账号绑定 |
+
+::: tip
+机器人只响应私聊消息，并会校验 Telegram 回调密钥。同一个 Bot 不能同时被其他程序以 `getUpdates` 方式拉取消息。停用插件不会删除 Telegram 端的回调配置，如果要更换或永久停用机器人，可以在 Telegram 端删除或替换回调地址。
+:::
 
 ## 完整示例 {#example}
 
