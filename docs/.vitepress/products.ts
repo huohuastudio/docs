@@ -16,7 +16,7 @@ export const PRODUCTS: Product[] = [
     base: '/novaix/',
     home: '/novaix/introduce',
     github: 'https://github.com/huohuastudio/novaix-releases',
-    devBanner: 'Novaix 目前处于早期开发阶段，功能尚未稳定，可能存在严重的 Bug。请勿用于生产环境。',
+    devBanner: 'Novaix 目前处于公测阶段（v0.5.0 起），核心功能已完成多轮测试，但仍可能存在问题。用于生产环境前请做好数据备份。',
   },
   {
     key: 'lsky-pro',
