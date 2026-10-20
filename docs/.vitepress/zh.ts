@@ -136,6 +136,7 @@ function sidebarNovaix(): DefaultTheme.SidebarItem[] {
         { text: '发票管理', link: 'invoice' },
         { text: '实例转移', link: 'push-transfer' },
         { text: '代理系统', link: 'agent' },
+        { text: '供应商转售', link: 'supplier' },
       ],
     },
     {

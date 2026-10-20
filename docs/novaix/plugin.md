@@ -1,6 +1,6 @@
 # 插件系统 {#plugin}
 
-Novaix 支持通过 JavaScript 插件扩展系统功能。您可以编写插件来对接自定义的支付渠道、人机验证服务、身份认证平台、短信服务、邮件服务、通知渠道和外部消息机器人，无需修改系统源代码。
+Novaix 支持通过 JavaScript 插件扩展系统功能。您可以编写插件来对接自定义的支付渠道、人机验证服务、身份认证平台、短信服务、邮件服务、通知渠道、外部消息机器人和上游供应商，无需修改系统源代码。
 
 ## 插件类型 {#types}
 
@@ -14,6 +14,7 @@ Novaix 支持通过 JavaScript 插件扩展系统功能。您可以编写插件�
 | `mail` | 邮件服务 | `send` | 自定义邮件发送 API |
 | `notify` | 通知渠道 | `send` | 自定义推送服务 |
 | `extension` | 扩展插件 | `onWebhook`、`onSchedule`、`onEvent`（按声明导出） | Telegram 机器人、外部系统同步等 |
+| `supplier` | 供应商插件 | `testConnection`、`create`、`query`、`getService`、`terminate` 等 | 对接上游供应商转售其产品 |
 
 ## 插件生命周期 {#lifecycle}
 
@@ -1002,6 +1003,158 @@ Telegram 机器人是官方提供的扩展插件，用户绑定账号后，可�
 ::: tip
 机器人只响应私聊消息，并会校验 Telegram 回调密钥。同一个 Bot 不能同时被其他程序以 `getUpdates` 方式拉取消息。停用插件不会删除 Telegram 端的回调配置，如果要更换或永久停用机器人，可以在 Telegram 端删除或替换回调地址。
 :::
+
+### 供应商插件 (supplier) {#supplier}
+
+供应商插件用于[供应商转售](./supplier)，把开通、续费、退订等标准操作翻译成上游供应商的接口调用。商品、订单、余额、到期处理、幂等、并发控制、结果未知时的查询恢复和人工处理都由系统负责，插件**不保存状态**，只负责调用上游。
+
+系统内置了魔方业务系统、魔方财务系统、WHMCS、雨云四个供应商插件，对接其他上游时可以参考它们的实现。
+
+::: tip 版本要求
+供应商插件需要 Novaix 0.6.0 及以上版本，并且需要授权版。
+:::
+
+#### manifest.json 额外字段 {#supplier-manifest}
+
+```json
+{
+  "id": "my-supplier",
+  "name": "示例供应商",
+  "version": "1.0.0",
+  "type": "supplier",
+  "requires": ">=0.6.0",
+  "supplier": {
+    "protocol": 1,
+    "billing_model": "prepaid",
+    "concurrency": "connection_serial",
+    "min_interval_ms": 0,
+    "capabilities": ["renew", "suspend", "unsuspend", "balance", "console", "actions", "lookup"],
+    "connection_fields": [
+      { "key": "url", "label": "接口地址", "type": "url", "required": true },
+      { "key": "api_key", "label": "API 密钥", "type": "password", "required": true }
+    ],
+    "product_fields": [
+      { "key": "product_id", "label": "上游商品", "type": "select", "options_remote": true, "required": true },
+      { "key": "cycle_monthly", "label": "月付对应上游周期", "type": "select", "options_remote": true }
+    ],
+    "checkout_fields": [
+      { "key": "password", "label": "登录密码", "type": "password" }
+    ]
+  }
+}
+```
+
+| 字段 | 说明 |
+|------|------|
+| `protocol` | 协议版本，目前为 `1` |
+| `billing_model` | 计费模式，目前只支持 `prepaid`（预付周期，续费需要调用上游） |
+| `concurrency` | `connection_serial`（默认）表示同一连接的调用串行执行，适合购物车、余额按账号共享的上游；`parallel` 允许并发 |
+| `min_interval_ms` | 同一连接两次调用的最小间隔（毫秒），用于上游有防重复提交限制的情况 |
+| `capabilities` | 插件支持的可选能力，可选 `lookup`、`renew`、`suspend`、`unsuspend`、`balance`、`actions`、`console` |
+| `connection_fields` | 供应商连接的配置字段，如接口地址、账号、密钥 |
+| `product_fields` | 模块商品的上游配置字段，如上游商品、系统镜像、上游周期 |
+| `checkout_fields` | 允许用户下单时填写的字段，管理员在商品中勾选启用 |
+
+字段格式与[配置字段](#config-fields)相同，有以下区别：
+
+- 供应商插件不支持插件级的 `config`，配置全部归属于「供应商连接」，一个插件可以添加多个连接
+- `select` 字段设置 `options_remote: true` 后，下拉选项由插件的 `getOptions` 从上游分页加载
+- 商品字段可以声明 `cycle_monthly`、`cycle_quarterly`、`cycle_yearly`，作为本地计费周期对应的上游周期参数，调用时通过 `ctx.service.cycle_param` 读取当前服务周期对应的值
+- `password` 类型和 `sensitive` 字段加密存储，并在操作日志中自动打码
+
+#### 函数接口 {#supplier-functions}
+
+| 函数 | 是否必须 | 说明 |
+|------|---------|------|
+| `testConnection(ctx)` | 必须 | 测试连接，返回 `{ok, message, balance?}` |
+| `create(ctx)` | 必须 | 开通 |
+| `query(ctx)` | 必须 | 查询**本次操作**（`ctx.operation`）的结果，用于等待上游时轮询和结果未知时恢复 |
+| `getService(ctx)` | 必须 | 同步服务状态，返回 `{status, expire_at?, fields?, secrets?, data?}`，`status` 为 `active`、`pending`、`suspended`、`terminated`、`unknown` |
+| `terminate(ctx)` | 必须 | 退订或删除 |
+| `getOptions(ctx, fieldKey, values, {page, keyword})` | 有远程字段时 | 返回 `{items: [{value, label, description?}], has_more}`，`values` 为表单中已填写的其他字段 |
+| `lookup(ctx)` | 声明 `lookup` 时 | 按 `ctx.service.reference` 反查上游是否已经创建 |
+| `renew(ctx)` | 声明 `renew` 时 | 续费一个周期并完成支付 |
+| `suspend(ctx)` / `unsuspend(ctx)` | 声明对应能力时 | 暂停、恢复。上游不支持时返回 `failed` + `unsupported`，系统只在本地修改状态 |
+| `getBalance(ctx)` | 声明 `balance` 时 | 返回上游余额（分） |
+| `getActions(ctx)` / `runAction(ctx, name, input)` | 声明 `actions` 时 | 自定义操作，如开关机、重装系统。`getActions` 返回 `[{name, label, confirm?, danger?, fields?}]`，操作名不能与以上函数重名 |
+| `console(ctx)` | 声明 `console` 时 | 返回 `{type: "url", url}`，或 `{type: "form", action, method, fields}`（浏览器自动提交表单） |
+
+#### 调用上下文 {#supplier-context}
+
+所有函数的第一个参数 `ctx` 结构如下：
+
+```js
+{
+  connection: { url: "...", api_key: "..." },            // 连接配置（已解密）
+  product: { product_id: "...", cycle_monthly: "1" },    // 购买时的商品配置快照
+  service: {
+    id: 12,
+    reference: "32 位十六进制本地引用",                    // 服务生命周期内不变，用作幂等键
+    remote_id: "上游资源 ID",
+    data: {},                                            // 插件私有数据，由返回值的 data 合并写入
+    billing_cycle: "monthly",
+    cycle_param: "1",                                    // 当前周期对应的上游周期参数
+    expire_at: "2026-11-20T10:00:00+08:00",
+    name: "服务名称",
+    checkout: { password: "用户下单时填写的值" }
+  },
+  operation: { id: 3, key: "create-12", type: "create", action: "", attempt: 1, checkpoint: {}, remote_ref: "", input: {} },
+  site: { url: "https://您的站点地址" }
+}
+```
+
+请把 `service.reference` 写入上游可以反查的位置（备注、标签、主机名或下游标识），超时后系统才能通过 `lookup` 确认是否已经创建。`operation.key` 在重试时保持不变。
+
+#### 返回值 {#supplier-result}
+
+`create`、`query`、`renew`、`suspend`、`unsuspend`、`terminate`、`lookup`、`runAction` 返回统一的结果对象：
+
+```js
+{
+  status: "succeeded",          // succeeded | pending | failed | unknown
+  retry_after: 30,              // pending 时建议的下次查询间隔（秒）
+  error: { code: "insufficient_balance", message: "上游余额不足", retryable: false },
+  remote_id: "上游资源 ID",
+  remote_ref: "上游订单号",
+  data: {},                     // 合并进 service.data，值为 null 表示删除该键
+  fields: [{ key: "ip", label: "IP 地址", value: "1.2.3.4", copyable: true }],
+  secrets: { password: "..." },
+  expire_at: "上游到期时间（RFC3339 或 Unix 秒）",
+  cost: 3000                    // 本次实际成本（分）
+}
+```
+
+| 状态 | 含义 | 系统的处理 |
+|------|------|-----------|
+| `succeeded` | 上游已完成 | 结算本次操作 |
+| `pending` | 上游已受理，尚未完成 | 按 `retry_after` 调用 `query` 查询 |
+| `failed` | 上游明确未执行 | `retryable: true` 时按退避自动重试，否则标记失败并通知管理员 |
+| `unknown` | 无法确定上游是否已执行 | 调用 `lookup` 或 `query` 向上游确认，无法确认时转人工处理 |
+
+编写时请注意：
+
+- **只要上游可能已经执行，就不要返回 `failed`**，应返回 `pending` 或 `unknown`。插件抛出异常、调用超时、返回值格式不对都会按 `unknown` 处理
+- `lookup` 找到且已完成时返回 `succeeded` 并带上 `remote_id`；找到但未完成返回 `pending`；**确认不存在**才返回 `failed` + `not_found`，系统会沿用同一个幂等键重新提交
+- 错误码可选 `auth`、`insufficient_balance`、`out_of_stock`、`invalid_params`、`not_found`、`rate_limited`、`upstream_error`、`unsupported`、`timeout`
+- `fields` 中的 `ip`、`ipv6`、`port`、`username`、`os`、`hostname` 是标准字段，用户面板会以统一格式展示；登录密码放在 `secrets.password`
+- 金额一律使用整数「分」
+
+#### 宿主能力 {#supplier-api}
+
+除 `http`、`crypto`、`base64`、`url`、`log`、`config` 外，供应商插件还可以使用：
+
+| 方法 | 说明 |
+|------|------|
+| `novaix.checkpoint(obj)` | 立即保存当前操作的检查点（不超过 16KB）。多步骤下单时每完成一步调用一次，下次调用从 `ctx.operation.checkpoint` 读取，从中断处继续 |
+| `novaix.cache.get(key)` / `set(key, value, ttlSeconds)` / `delete(key)` | 进程内缓存，按连接隔离，适合缓存上游登录令牌和全量商品列表 |
+| `novaix.note(msg)` | 在操作日志中追加一条说明 |
+
+#### 执行限制 {#supplier-limits}
+
+- 单次调用总时长不超过 55 秒，单个 HTTP 请求最长 60 秒。需要更长时间的流程请返回 `pending`，由系统稍后调用 `query`
+- 插件发出的 HTTP 请求会自动记录到操作日志，连接配置中的敏感值、鉴权请求头，以及 `password`、`token`、`secret`、`key` 等字段会自动打码，插件无法关闭
+- 上游必须是公网地址，访问内网地址会被拦截
+- 停用插件后，使用该插件的商品不再对用户销售；仍有供应商连接使用该插件时不能卸载
 
 ## 完整示例 {#example}
 
