@@ -45,6 +45,25 @@ journalctl -u novaix | grep "密码"
 Novaix 与节点之间通过 HTTPS（默认 8443 端口）通信。请确保 Novaix 服务器能访问节点的该端口，中间没有 NAT、安全组或防火墙拦截。
 :::
 
+## 宿主机更换了公网 IP 怎么办？ {#node-ip-changed}
+
+1. 在「节点管理」中编辑该节点，把「地址」改为新 IP
+2. 如果共享 IP 与节点地址相同，保持勾选「同时将共享 IP 和网桥出口地址迁移到新地址」，保存后实例的端口映射会迁移到新地址，详见[更换节点地址](./node#change-host)
+3. 共享 IP 与节点地址不同时，到「共享 IP」页面[修改对应的 IP 地址](./shared-ip#change-address)
+
+::: tip
+公网 IP 会经常变化的线路（如动态拨号），节点网络的 [NAT 出口地址](./node#nat-egress-address)建议保持「自动」，换 IP 后实例出网不受影响。
+:::
+
+## NAT 实例无法访问外网？ {#nat-no-internet}
+
+典型表现：实例创建后无法安装软件包、SSH 端口连接后立即断开，但通过管理面板的终端可以进入实例。
+
+1. 在实例内执行 `ip addr`，确认已获取内网 IP。如果没有，检查节点网桥的 DHCP 是否正常
+2. 在宿主机上确认本机可以访问外网
+3. 宿主机有多个 IP 时，系统自动选择的出网地址可能不可用。在节点详情的「网络」Tab 中为网桥指定一个可正常出网的 [NAT 出口地址](./node#nat-egress-address)
+4. 如果是宿主机有多张网卡且默认路由走错了网卡，需要在宿主机上调整路由
+
 ## WebSocket 连接失败（终端/控制台无法打开）？ {#websocket-failed}
 
 通常是反向代理配置问题。请确保您的 Nginx 或 Caddy 配置正确转发了 WebSocket 连接。参考[安装](./install#nginx)章节中的 Nginx 配置示例，确保包含了 `Upgrade` 和 `Connection` 头的转发。
