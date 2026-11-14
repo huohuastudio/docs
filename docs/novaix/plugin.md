@@ -390,7 +390,7 @@ Novaix 自带以下官方插件，会随版本升级自动更新：
 |------|------|------|
 | `status` | `number` | HTTP 状态码 |
 | `headers` | `{key: value}` | 响应头（key 全小写） |
-| `body` | `string` | 响应体（最大 1MB） |
+| `body` | `string` | 响应体（最大 10MB） |
 
 ```js
 var resp = http.request("POST", "https://api.example.com/verify", {
@@ -405,7 +405,7 @@ var data = JSON.parse(resp.body);
 ```
 
 ::: warning 安全限制
-HTTP 请求内置 SSRF 防护：禁止访问内网地址（`127.0.0.0/8`、`10.0.0.0/8`、`172.16.0.0/12`、`192.168.0.0/16`、`169.254.0.0/16`），包括通过 DNS 解析到内网 IP 的域名。重定向最多 3 次，响应体最大 1MB。
+HTTP 请求内置 SSRF 防护：禁止访问内网地址（`127.0.0.0/8`、`10.0.0.0/8`、`172.16.0.0/12`、`192.168.0.0/16`、`169.254.0.0/16`），包括通过 DNS 解析到内网 IP 的域名。重定向最多 3 次，响应体最大 10MB。
 :::
 
 ### crypto {#api-crypto}
